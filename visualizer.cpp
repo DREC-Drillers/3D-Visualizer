@@ -1,5 +1,6 @@
 #include "visualizer.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <stdexcept>
@@ -7,8 +8,8 @@
 
 namespace triangles::visualizer {
 
-void Viewer::addView(const Scene& scene, CameraId camera,
-                     NormalizedViewport viewport) {
+void Viewer::addView(Scene& scene, CameraId camera, NormalizedViewport viewport,
+                     std::unique_ptr<CameraController> controller) {
     scene.camera(camera);
 
     if (!std::isfinite(viewport.x) || !std::isfinite(viewport.y) ||
@@ -31,7 +32,62 @@ void Viewer::addView(const Scene& scene, CameraId camera,
         }
     }
 
-    views_.push_back({scene, camera, viewport});
+    if (controller) {
+        controller->attach(scene.camera(camera));
+    }
+
+    views_.push_back({scene, camera, viewport, std::move(controller)});
+}
+
+std::optional<std::size_t> Viewer::viewAt(std::array<double, 2> position) const {
+    for (std::size_t index = 0; index < views_.size(); ++index) {
+        const auto& area = views_[index].viewport;
+        if (position[0] >= area.x && position[0] < area.x + area.width &&
+            position[1] >= area.y && position[1] < area.y + area.height) {
+            return index;
+        }
+    }
+
+    return std::nullopt;
+}
+
+void Viewer::update(float deltaTime) {
+    if (!ViewerBackend_.window) {
+        throw std::logic_error("Updating requires a window");
+    }
+
+    auto input = ViewerBackend_.window->takeInput();
+    const auto size = ViewerBackend_.window->framebufferSize();
+    if (!input.focused || size.width <= 0 || size.height <= 0) {
+        draggedView_.reset();
+        return;
+    }
+
+    if (input.leftButtonPressed || input.rightButtonPressed) {
+        draggedView_ = viewAt(input.pressPosition);
+    }
+
+    const auto selectedView =
+        draggedView_ ? draggedView_ : viewAt(input.cursorPosition);
+    if (selectedView && views_[*selectedView].controller) {
+        auto& view = views_[*selectedView];
+        if (!draggedView_) {
+            input.leftButtonDown = false;
+            input.rightButtonDown = false;
+        }
+
+        input.cursorDelta[0] /= view.viewport.width;
+        input.cursorDelta[1] /= view.viewport.height;
+        const float aspect = (size.width * view.viewport.width) /
+                             (size.height * view.viewport.height);
+
+        view.controller->update(
+            view.scene.camera(view.camera), input, deltaTime, aspect);
+    }
+
+    if (!input.leftButtonDown && !input.rightButtonDown) {
+        draggedView_.reset();
+    }
 }
 
 void Viewer::drawFrame() {
@@ -44,7 +100,13 @@ void Viewer::drawFrame() {
         return;
     }
 
-    const Frame frame{views_, size};
+    std::vector<RenderView> renderViews;
+    renderViews.reserve(views_.size());
+    for (const auto& view : views_) {
+        renderViews.push_back({view.scene, view.camera, view.viewport});
+    }
+
+    const Frame frame{renderViews, size};
     ViewerBackend_.renderer->render(frame);
 }
 
@@ -54,6 +116,7 @@ void Viewer::run() {
     }
 
     auto& window = *ViewerBackend_.window;
+    auto previousTime = std::chrono::steady_clock::now();
 
     while (!window.shouldClose()) {
         window.pollEvents();
@@ -62,6 +125,12 @@ void Viewer::run() {
             break;
         }
 
+        const auto currentTime = std::chrono::steady_clock::now();
+        const float deltaTime =
+            std::chrono::duration<float>(currentTime - previousTime).count();
+        previousTime = currentTime;
+
+        update(std::min(deltaTime, 0.1f));
         drawFrame();
 
         const auto size = window.framebufferSize();

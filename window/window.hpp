@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../inputState.hpp"
+
 namespace triangles::visualizer {
 
 struct FramebufferSize {
@@ -12,8 +14,9 @@ public:
     virtual ~Window() = default;
 
     virtual void pollEvents() = 0;
+    virtual InputState takeInput() = 0;
     virtual bool shouldClose() const = 0;
     virtual FramebufferSize framebufferSize() const = 0;
 };
 
-}
+} // namespace triangles::visualizer
