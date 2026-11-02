@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "renderer.hpp"
 #include "openGLLightingData.hpp"
+#include "renderer.hpp"
 
 namespace triangles::visualizer {
 

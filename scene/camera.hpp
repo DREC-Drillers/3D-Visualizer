@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <compare>
+#include <cstdint>
 #include <numbers>
 
 #include "transform.hpp"
@@ -16,10 +16,7 @@ struct CameraId {
 
 class Camera {
 public:
-    enum class Type {
-        Perspective,
-        Orthographic
-    };
+    enum class Type { Perspective, Orthographic };
 
     struct Settings {
         Type type = Type::Perspective;
@@ -47,4 +44,4 @@ private:
     Quaternion rotation_;
 };
 
-}
+} // namespace triangles::visualizer

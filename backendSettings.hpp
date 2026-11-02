@@ -5,14 +5,9 @@
 
 namespace triangles::visualizer {
 
-enum class GraphicsApi {
-    OpenGL,
-    Vulkan
-};
+enum class GraphicsApi { OpenGL, Vulkan };
 
-enum class WindowLibrary {
-    GLFW
-};
+enum class WindowLibrary { GLFW };
 
 struct WindowSettings {
     std::string title = "Triangles";
@@ -27,4 +22,4 @@ struct BackendSettings {
     WindowSettings window;
 };
 
-}
+} // namespace triangles::visualizer

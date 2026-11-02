@@ -5,11 +5,7 @@
 
 namespace triangles::visualizer {
 
-enum class Topology {
-    Points,
-    Lines,
-    Triangles
-};
+enum class Topology { Points, Lines, Triangles };
 
 struct Vertex {
     std::array<float, 3> position{};
@@ -21,4 +17,4 @@ struct Geometry {
     std::vector<Vertex> vertices;
 };
 
-}
+} // namespace triangles::visualizer

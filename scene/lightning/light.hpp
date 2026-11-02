@@ -19,9 +19,7 @@ public:
 
 class AmbientLight final : public Light {
 public:
-    void accept(LightVisitor& visitor) const override {
-        visitor.visit(*this);
-    }
+    void accept(LightVisitor& visitor) const override { visitor.visit(*this); }
 };
 
 class DirectionalLight final : public Light {
@@ -30,9 +28,7 @@ public:
     // Need not be unit length.
     std::array<float, 3> towardLight{0.4f, 0.7f, 1.0f};
 
-    void accept(LightVisitor& visitor) const override {
-        visitor.visit(*this);
-    }
+    void accept(LightVisitor& visitor) const override { visitor.visit(*this); }
 };
 
 } // namespace triangles::visualizer

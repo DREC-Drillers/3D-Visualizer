@@ -10,8 +10,8 @@
 #include <string>
 
 #include "../window/glfwWindow.hpp"
-#include "openGLLightDataCollector.hpp"
 #include "matrices.hpp"
+#include "openGLLightDataCollector.hpp"
 #include "openGLRenderDataPreparer.hpp"
 #include "shaderProgram.hpp"
 #include "shaders/matte.hpp"
@@ -28,7 +28,7 @@ OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
 
     try {
         shaderProgram_ = std::make_unique<ShaderProgram>(shaders::matteVertex,
-                                                       shaders::matteFragment);
+                                                         shaders::matteFragment);
 
         modelViewProjectionUniformLocation_ =
             shaderProgram_->uniformLocation("modelViewProjection");
@@ -37,8 +37,7 @@ OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
         modelUniformLocation_ = shaderProgram_->uniformLocation("model");
         normalMatrixUniformLocation_ =
             shaderProgram_->uniformLocation("normalMatrix");
-        materialLitUniformLocation_ =
-            shaderProgram_->uniformLocation("materialLit");
+        materialLitUniformLocation_ = shaderProgram_->uniformLocation("materialLit");
 
         ambientColorUniformLocation_ =
             shaderProgram_->uniformLocation("ambientColor");
@@ -205,8 +204,8 @@ void OpenGLRenderer::renderView(const RenderView& view,
         shaderProgram_->setUniform(modelUniformLocation_, model);
         shaderProgram_->setUniform(normalMatrixUniformLocation_, normalMatrix);
         shaderProgram_->setUniform(materialLitUniformLocation_,
-                                   object.material.lit &&
-                                       object.geometry.topology == Topology::Triangles);
+                                   object.material.lit && object.geometry.topology ==
+                                                              Topology::Triangles);
         shaderProgram_->setUniform(modelViewProjectionUniformLocation_,
                                    modelViewProjection);
         shaderProgram_->setUniform(materialColorUniformLocation_,

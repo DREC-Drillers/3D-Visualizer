@@ -12,4 +12,4 @@ struct Frame {
     FramebufferSize framebufferSize;
 };
 
-}
+} // namespace triangles::visualizer

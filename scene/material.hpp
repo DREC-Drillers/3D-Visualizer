@@ -11,4 +11,4 @@ struct Material {
     bool lit = true;
 };
 
-}
+} // namespace triangles::visualizer

@@ -21,4 +21,4 @@ struct SceneObject {
     Material material;
 };
 
-}
+} // namespace triangles::visualizer

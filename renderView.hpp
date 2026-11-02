@@ -12,4 +12,4 @@ struct RenderView {
     NormalizedViewport viewport;
 };
 
-}
+} // namespace triangles::visualizer

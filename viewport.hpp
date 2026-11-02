@@ -9,4 +9,4 @@ struct NormalizedViewport {
     float height = 1.0f;
 };
 
-}
+} // namespace triangles::visualizer

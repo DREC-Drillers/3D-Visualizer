@@ -17,4 +17,4 @@ struct Transform {
     std::array<float, 3> scale{1.0f, 1.0f, 1.0f};
 };
 
-}
+} // namespace triangles::visualizer
