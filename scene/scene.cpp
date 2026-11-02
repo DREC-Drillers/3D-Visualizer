@@ -6,6 +6,16 @@
 
 namespace triangles::visualizer {
 
+Scene::Scene() {
+    auto ambient = std::make_unique<AmbientLight>();
+    ambient->intensity = 0.25f;
+    lighting.addLight(std::move(ambient));
+
+    auto directional = std::make_unique<DirectionalLight>();
+    directional->intensity = 0.75f;
+    lighting.addLight(std::move(directional));
+}
+
 const std::map<ObjectId, SceneObject>& Scene::objects() const noexcept {
     return objects_;
 }

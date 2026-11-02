@@ -18,6 +18,11 @@ public:
 
     int uniformLocation(const char* name) const;
     void setUniform(int location, const glm::mat4& value) const;
+    void setUniform(int location, const glm::mat3& value) const;
+    void setUniform(int location, const std::array<float, 3>& value) const;
+    void setUniform(int location, float value) const;
+    void setUniform(int location, int value) const;
+    void setUniform(int location, bool value) const;
     void setUniform(int location, const std::array<float, 4>& value) const;
 
 private:

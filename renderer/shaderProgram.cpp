@@ -89,4 +89,25 @@ void ShaderProgram::setUniform(int location,
     glUniform4fv(location, 1, value.data());
 }
 
+void ShaderProgram::setUniform(int location, const glm::mat3& value) const {
+    glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void ShaderProgram::setUniform(int location,
+                               const std::array<float, 3>& value) const {
+    glUniform3fv(location, 1, value.data());
+}
+
+void ShaderProgram::setUniform(int location, float value) const {
+    glUniform1f(location, value);
+}
+
+void ShaderProgram::setUniform(int location, bool value) const {
+    glUniform1i(location, value ? 1 : 0);
+}
+
+void ShaderProgram::setUniform(int location, int value) const {
+    glUniform1i(location, value);
+}
+
 } // namespace triangles::visualizer

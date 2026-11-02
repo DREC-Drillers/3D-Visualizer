@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "renderer.hpp"
+#include "openGLLightingData.hpp"
 
 namespace triangles::visualizer {
 
@@ -37,6 +38,14 @@ private:
 
     int modelViewProjectionUniformLocation_ = -1;
     int materialColorUniformLocation_ = -1;
+    int modelUniformLocation_ = -1;
+    int normalMatrixUniformLocation_ = -1;
+    int materialLitUniformLocation_ = -1;
+
+    int ambientColorUniformLocation_ = -1;
+    int directionalCountUniformLocation_ = -1;
+    std::array<int, maxOpenGLDirectionalLights> towardLightUniformLocations_{};
+    std::array<int, maxOpenGLDirectionalLights> radianceUniformLocations_{};
 };
 
 } // namespace triangles::visualizer

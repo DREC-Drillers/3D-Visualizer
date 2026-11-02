@@ -4,12 +4,16 @@
 #include <map>
 
 #include "camera.hpp"
+#include "lightning/lighting.hpp"
 #include "sceneObject.hpp"
 
 namespace triangles::visualizer {
 
 class Scene {
 public:
+    Scene();
+    Lighting lighting;
+
     ObjectId addObject(SceneObject object);
     CameraId addCamera(Camera camera);
 

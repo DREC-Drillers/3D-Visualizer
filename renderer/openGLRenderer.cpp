@@ -4,14 +4,17 @@
 #include <cmath>
 #include <cstddef>
 #include <glad/gl.h>
+#include <glm/matrix.hpp>
 #include <limits>
 #include <stdexcept>
+#include <string>
 
 #include "../window/glfwWindow.hpp"
+#include "openGLLightDataCollector.hpp"
 #include "matrices.hpp"
 #include "openGLRenderDataPreparer.hpp"
 #include "shaderProgram.hpp"
-#include "shaders/flatColor.hpp"
+#include "shaders/matte.hpp"
 
 namespace triangles::visualizer {
 
@@ -24,18 +27,39 @@ OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
     glfwSwapInterval(1);
 
     try {
-        shaderProgram_ = std::make_unique<ShaderProgram>(shaders::flatColorVertex,
-                                                         shaders::flatColorFragment);
+        shaderProgram_ = std::make_unique<ShaderProgram>(shaders::matteVertex,
+                                                       shaders::matteFragment);
+
         modelViewProjectionUniformLocation_ =
             shaderProgram_->uniformLocation("modelViewProjection");
         materialColorUniformLocation_ =
             shaderProgram_->uniformLocation("materialColor");
+        modelUniformLocation_ = shaderProgram_->uniformLocation("model");
+        normalMatrixUniformLocation_ =
+            shaderProgram_->uniformLocation("normalMatrix");
+        materialLitUniformLocation_ =
+            shaderProgram_->uniformLocation("materialLit");
+
+        ambientColorUniformLocation_ =
+            shaderProgram_->uniformLocation("ambientColor");
+        directionalCountUniformLocation_ =
+            shaderProgram_->uniformLocation("directionalCount");
+
+        for (std::size_t i = 0; i < maxOpenGLDirectionalLights; ++i) {
+            const auto prefix = "directionalLights[" + std::to_string(i) + "].";
+
+            towardLightUniformLocations_[i] =
+                shaderProgram_->uniformLocation((prefix + "towardLight").c_str());
+            radianceUniformLocations_[i] =
+                shaderProgram_->uniformLocation((prefix + "radiance").c_str());
+        }
 
         glGenVertexArrays(1, &vertexArray_);
         glGenBuffers(1, &vertexBuffer_);
 
         glBindVertexArray(vertexArray_);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
+
         glVertexAttribPointer(
             0,
             3,
@@ -44,6 +68,15 @@ OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
             sizeof(Vertex),
             reinterpret_cast<const void*>(offsetof(Vertex, position)));
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(
+            1,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(Vertex),
+            reinterpret_cast<const void*>(offsetof(Vertex, normal)));
+        glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -140,13 +173,40 @@ void OpenGLRenderer::renderView(const RenderView& view,
     const auto viewProjection =
         projectionMatrix(camera, aspect) * viewMatrix(camera);
 
+    OpenGLLightingData lighting;
+    OpenGLLightDataCollector lightCollector(lighting);
+    view.scene.lighting.visit(lightCollector);
+
+    shaderProgram_->setUniform(ambientColorUniformLocation_, lighting.ambientColor);
+    shaderProgram_->setUniform(directionalCountUniformLocation_,
+                               static_cast<int>(lighting.directionalCount));
+
+    for (std::size_t i = 0; i < lighting.directionalCount; ++i) {
+        shaderProgram_->setUniform(towardLightUniformLocations_[i],
+                                   lighting.directional[i].towardLight);
+        shaderProgram_->setUniform(radianceUniformLocations_[i],
+                                   lighting.directional[i].radiance);
+    }
+
     for (const auto& [id, object] : view.scene.objects()) {
         if (object.geometry.vertices.empty()) {
             continue;
         }
 
-        const auto modelViewProjection =
-            viewProjection * modelMatrix(object.transform);
+        const auto model = modelMatrix(object.transform);
+        const auto modelViewProjection = viewProjection * model;
+        const glm::mat3 linear(model);
+
+        // Singular transforms use the fragment shader's geometric normal fallback.
+        const auto normalMatrix = glm::determinant(linear) != 0.0f
+                                      ? glm::transpose(glm::inverse(linear))
+                                      : glm::mat3(0.0f);
+
+        shaderProgram_->setUniform(modelUniformLocation_, model);
+        shaderProgram_->setUniform(normalMatrixUniformLocation_, normalMatrix);
+        shaderProgram_->setUniform(materialLitUniformLocation_,
+                                   object.material.lit &&
+                                       object.geometry.topology == Topology::Triangles);
         shaderProgram_->setUniform(modelViewProjectionUniformLocation_,
                                    modelViewProjection);
         shaderProgram_->setUniform(materialColorUniformLocation_,
