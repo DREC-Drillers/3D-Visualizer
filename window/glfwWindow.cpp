@@ -59,6 +59,7 @@ GlfwWindow::GlfwWindow(const WindowSettings& settings, GraphicsApi graphics) {
     }
 
     glfwWindowHint(GLFW_RESIZABLE, settings.resizable ? GLFW_TRUE : GLFW_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, settings.visible ? GLFW_TRUE : GLFW_FALSE);
 
     window_ = glfwCreateWindow(static_cast<int>(settings.width),
                                static_cast<int>(settings.height),

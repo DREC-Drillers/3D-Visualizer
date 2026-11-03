@@ -13,7 +13,8 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": true,
-        "VISUALIZER_BUILD_EXAMPLES": false
+        "VISUALIZER_BUILD_EXAMPLES": false,
+        "VISUALIZER_BUILD_OPENGL_TESTS": false
       }
     },
     {
@@ -43,6 +44,14 @@
       "cacheVariables": {
         "VISUALIZER_BUILD_EXAMPLES": true
       }
+    },
+    {
+      "name": "opengl",
+      "displayName": "OpenGL rendering integration tests",
+      "inherits": "debug",
+      "cacheVariables": {
+        "VISUALIZER_BUILD_OPENGL_TESTS": true
+      }
     }
   ],
   "buildPresets": [
@@ -57,20 +66,50 @@
     {
       "name": "demo",
       "configurePreset": "demo"
+    },
+    {
+      "name": "opengl",
+      "configurePreset": "opengl",
+      "targets": [
+        "visualizer_opengl_tests"
+      ]
     }
   ],
   "testPresets": [
     {
       "name": "debug",
       "configurePreset": "debug",
-      "output": { "outputOnFailure": true },
-      "execution": { "noTestsAction": "error" }
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
     },
     {
       "name": "demo",
       "configurePreset": "demo",
-      "output": { "outputOnFailure": true },
-      "execution": { "noTestsAction": "error" }
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "opengl",
+      "configurePreset": "opengl",
+      "filter": {
+        "include": {
+          "label": "opengl"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
     }
   ]
 }

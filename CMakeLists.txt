@@ -15,6 +15,7 @@ endif()
 
 option(VISUALIZER_BUILD_TESTS "Build visualizer tests" ${visualizer_build_tests_default})
 option(VISUALIZER_BUILD_EXAMPLES "Build the interactive lighting example" OFF)
+option(VISUALIZER_BUILD_OPENGL_TESTS "Build tests requiring an OpenGL 3.3 context" OFF)
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
@@ -91,23 +92,45 @@ if(VISUALIZER_BUILD_EXAMPLES)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 endif()
 
-if(VISUALIZER_BUILD_TESTS)
+if(VISUALIZER_BUILD_TESTS OR VISUALIZER_BUILD_OPENGL_TESTS)
     enable_testing()
 
-    add_executable(camera_controller_test tests/camera_controller.cpp)
-    target_link_libraries(camera_controller_test PRIVATE Visualizer::visualizer)
-    visualizer_configure_target(camera_controller_test)
-    add_test(NAME camera_controller COMMAND camera_controller_test)
+    find_package(GTest CONFIG REQUIRED)
+    include(GoogleTest)
+endif()
 
-    add_executable(lighting_test tests/lighting.cpp)
-    target_link_libraries(lighting_test PRIVATE Visualizer::visualizer)
-    visualizer_configure_target(lighting_test)
-    add_test(NAME lighting COMMAND lighting_test)
+if(VISUALIZER_BUILD_TESTS)
+    add_executable(visualizer_unit_tests
+        tests/camera_controller.cpp
+        tests/lighting.cpp
+        tests/camera.cpp
+        tests/scene.cpp
+        tests/matrices.cpp
+        tests/viewer.cpp)
+    target_link_libraries(visualizer_unit_tests PRIVATE
+        Visualizer::visualizer GTest::gtest_main glm::glm)
+    visualizer_configure_target(visualizer_unit_tests)
+    gtest_discover_tests(visualizer_unit_tests
+        DISCOVERY_TIMEOUT 30
+        PROPERTIES LABELS "unit")
 
     add_executable(visualizer_consumer_test tests/consumer/main.cpp)
     target_link_libraries(visualizer_consumer_test PRIVATE Visualizer::visualizer)
     visualizer_configure_target(visualizer_consumer_test)
     add_test(NAME visualizer_consumer COMMAND visualizer_consumer_test)
+    set_tests_properties(visualizer_consumer PROPERTIES LABELS "integration")
+endif()
+
+if(VISUALIZER_BUILD_OPENGL_TESTS)
+    add_executable(visualizer_opengl_tests tests/opengl.cpp)
+    target_link_libraries(visualizer_opengl_tests PRIVATE
+        Visualizer::visualizer visualizer_glad glfw GTest::gtest_main)
+    target_compile_definitions(visualizer_opengl_tests PRIVATE GLFW_INCLUDE_NONE)
+    visualizer_configure_target(visualizer_opengl_tests)
+    gtest_discover_tests(visualizer_opengl_tests
+        DISCOVERY_MODE PRE_TEST
+        DISCOVERY_TIMEOUT 30
+        PROPERTIES LABELS "opengl" RUN_SERIAL TRUE)
 endif()
 
 include(CMakePackageConfigHelpers)

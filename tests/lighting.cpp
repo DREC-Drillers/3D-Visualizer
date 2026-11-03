@@ -1,7 +1,8 @@
-#include <cmath>
 #include <memory>
 #include <stdexcept>
 #include <utility>
+
+#include <gtest/gtest.h>
 
 #include "renderer/openGLLightDataCollector.hpp"
 #include "scene/scene.hpp"
@@ -9,27 +10,6 @@
 using namespace visualizer;
 
 namespace {
-
-void require(bool condition) {
-    if (!condition) {
-        throw std::runtime_error("Lighting verification failed");
-    }
-}
-
-bool close(float a, float b) {
-    return std::abs(a - b) < 0.0001f;
-}
-
-template <class Exception, class Function>
-void requireThrows(Function function) {
-    try {
-        function();
-    } catch (const Exception&) {
-        return;
-    }
-
-    throw std::runtime_error("Expected lighting exception");
-}
 
 OpenGLLightingData collect(const Lighting& lighting) {
     OpenGLLightingData data;
@@ -41,71 +21,116 @@ OpenGLLightingData collect(const Lighting& lighting) {
 
 } // namespace
 
-int main() {
-    Lighting lighting;
-    require(collect(lighting).directionalCount == 0);
-    require(collect(lighting).ambientColor == std::array<float, 3>{});
-    requireThrows<std::invalid_argument>([&] { lighting.addLight(nullptr); });
+TEST(Lighting, EmptyCollectionContributesNoLight) {
+    const Lighting lighting;
+    const auto data = collect(lighting);
 
+    EXPECT_EQ(data.ambientColor, (std::array<float, 3>{}));
+    EXPECT_EQ(data.directionalCount, 0);
+}
+
+TEST(Lighting, RejectsNullSource) {
+    Lighting lighting;
+
+    EXPECT_THROW(lighting.addLight(nullptr), std::invalid_argument);
+}
+
+TEST(Lighting, SumsAmbientColorsAndIntensities) {
+    Lighting lighting;
     auto ambient = std::make_unique<AmbientLight>();
     ambient->color = {1.0f, 0.5f, 0.0f};
     ambient->intensity = 0.2f;
-    const auto ambientId = lighting.addLight(std::move(ambient));
+    lighting.addLight(std::move(ambient));
     lighting.addLight(std::make_unique<AmbientLight>());
 
+    const auto data = collect(lighting);
+
+    EXPECT_FLOAT_EQ(data.ambientColor[0], 1.2f);
+    EXPECT_FLOAT_EQ(data.ambientColor[1], 1.1f);
+    EXPECT_FLOAT_EQ(data.ambientColor[2], 1.0f);
+}
+
+TEST(Lighting, CollectsDistinctDirectionalSources) {
+    Lighting lighting;
     auto sun = std::make_unique<DirectionalLight>();
-    sun->towardLight = {1.0f, 2.0f, 3.0f};
+    sun->towardLight = {1, 2, 3};
     sun->color = {0.2f, 0.4f, 0.6f};
     sun->intensity = 0.5f;
-    const auto sunId = lighting.addLight(std::move(sun));
+    lighting.addLight(std::move(sun));
+    lighting.addLight(std::make_unique<DirectionalLight>());
 
     const auto data = collect(lighting);
-    require(close(data.ambientColor[0], 1.2f));
-    require(close(data.ambientColor[1], 1.1f));
-    require(close(data.ambientColor[2], 1.0f));
+    ASSERT_EQ(data.directionalCount, 2);
 
-    require(data.directionalCount == 1);
-    require(data.directional[0].towardLight == std::array<float, 3>{1, 2, 3});
-    require(close(data.directional[0].radiance[2], 0.3f));
+    EXPECT_EQ(data.directional[0].towardLight, (std::array<float, 3>{1, 2, 3}));
+    EXPECT_FLOAT_EQ(data.directional[0].radiance[2], 0.3f);
+    EXPECT_FLOAT_EQ(data.directional[1].radiance[2], 1.0f);
+}
 
-    lighting.light(sunId).enabled = false;
-    lighting.light(ambientId).enabled = false;
+TEST(Lighting, SkipsDisabledSourcesOfBothTypes) {
+    Lighting lighting;
+    const auto ambient = lighting.addLight(std::make_unique<AmbientLight>());
+    const auto sun = lighting.addLight(std::make_unique<DirectionalLight>());
+    lighting.light(ambient).enabled = false;
+    lighting.light(sun).enabled = false;
 
-    require(collect(lighting).directionalCount == 0);
-    require(close(collect(lighting).ambientColor[0], 1.0f));
+    const auto data = collect(lighting);
 
-    lighting.removeLight(sunId);
-    requireThrows<std::out_of_range>([&] { lighting.removeLight(sunId); });
-    requireThrows<std::out_of_range>([&] { lighting.light(sunId); });
+    EXPECT_EQ(data.ambientColor, (std::array<float, 3>{}));
+    EXPECT_EQ(data.directionalCount, 0);
+}
 
+TEST(Lighting, RemovedIdsAreInvalidAndNotReused) {
+    Lighting lighting;
+    const auto old = lighting.addLight(std::make_unique<AmbientLight>());
+    lighting.removeLight(old);
+    const auto next = lighting.addLight(std::make_unique<AmbientLight>());
+
+    EXPECT_NE(old, next);
+    EXPECT_THROW(lighting.light(old), std::out_of_range);
+    EXPECT_THROW(std::as_const(lighting).light(old), std::out_of_range);
+    EXPECT_THROW(lighting.removeLight(old), std::out_of_range);
+}
+
+TEST(Lighting, ClearInvalidatesSourcesWithoutReusingIds) {
+    Lighting lighting;
+    const auto old = lighting.addLight(std::make_unique<AmbientLight>());
     lighting.clear();
-    require(collect(lighting).ambientColor == std::array<float, 3>{});
 
-    const auto newId = lighting.addLight(std::make_unique<AmbientLight>());
-    require(newId != ambientId && newId != sunId);
+    EXPECT_EQ(collect(lighting).ambientColor, (std::array<float, 3>{}));
+    EXPECT_THROW(lighting.light(old), std::out_of_range);
+    EXPECT_NE(lighting.addLight(std::make_unique<AmbientLight>()), old);
+}
 
-    const Lighting& constLighting = lighting;
-    require(constLighting.light(newId).enabled);
-
+TEST(Lighting, MovePreservesOwnedSources) {
+    Lighting lighting;
+    const auto id = lighting.addLight(std::make_unique<DirectionalLight>());
     auto moved = std::move(lighting);
-    require(moved.light(newId).enabled);
 
-    Lighting many;
+    EXPECT_TRUE(std::as_const(moved).light(id).enabled);
+    EXPECT_EQ(collect(moved).directionalCount, 1);
+}
+
+TEST(OpenGLLightDataCollector, EnforcesEnabledDirectionalSourceLimit) {
+    Lighting lighting;
     for (std::size_t i = 0; i < maxOpenGLDirectionalLights; ++i) {
-        many.addLight(std::make_unique<DirectionalLight>());
+        lighting.addLight(std::make_unique<DirectionalLight>());
     }
 
-    require(collect(many).directionalCount == maxOpenGLDirectionalLights);
+    EXPECT_EQ(collect(lighting).directionalCount, maxOpenGLDirectionalLights);
 
-    const auto extra = many.addLight(std::make_unique<DirectionalLight>());
-    requireThrows<std::length_error>([&] { collect(many); });
+    const auto extra = lighting.addLight(std::make_unique<DirectionalLight>());
+    EXPECT_THROW(collect(lighting), std::length_error);
 
-    many.light(extra).enabled = false;
-    require(collect(many).directionalCount == maxOpenGLDirectionalLights);
+    lighting.light(extra).enabled = false;
+    EXPECT_EQ(collect(lighting).directionalCount, maxOpenGLDirectionalLights);
+}
 
-    Scene scene;
-    const auto defaults = collect(scene.lighting);
-    require(close(defaults.ambientColor[0], 0.25f));
-    require(defaults.directionalCount == 1);
-    require(close(defaults.directional[0].radiance[0], 0.75f));
+TEST(Scene, DefaultLightingContainsAmbientAndDirectionalSources) {
+    const Scene scene;
+    const auto data = collect(scene.lighting);
+
+    EXPECT_FLOAT_EQ(data.ambientColor[0], 0.25f);
+    ASSERT_EQ(data.directionalCount, 1);
+    EXPECT_FLOAT_EQ(data.directional[0].radiance[0], 0.75f);
 }

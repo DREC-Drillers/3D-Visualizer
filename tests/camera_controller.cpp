@@ -2,20 +2,12 @@
 #include <memory>
 #include <stdexcept>
 
+#include <gtest/gtest.h>
+
 #include "cameraController/orbitCameraController.hpp"
 #include "visualizer.hpp"
 
 using namespace visualizer;
-
-void require(bool condition) {
-    if (!condition) {
-        throw std::runtime_error("Camera controller verification failed");
-    }
-}
-
-bool close(float a, float b) {
-    return std::abs(a - b) < 0.0001f;
-}
 
 class TestWindow final : public Window {
 public:
@@ -42,36 +34,36 @@ public:
     }
 };
 
-void testOrbit() {
+TEST(OrbitCameraController, HandlesInputSequenceAndFocus) {
     Camera camera;
     camera.setPosition({0, 0, 8});
     OrbitCameraController controller;
     controller.attach(camera);
     controller.update(camera, {}, 0.016f, 1);
-    require(close(camera.position()[2], 8));
+    EXPECT_NEAR(camera.position()[2], 8, 0.0001f);
 
     InputState input;
     input.leftButtonDown = true;
     input.cursorDelta = {0.25, 0};
     controller.update(camera, input, 0.016f, 1);
-    require(close(camera.position()[0], -8));
-    require(close(camera.position()[2], 0));
+    EXPECT_NEAR(camera.position()[0], -8, 0.0001f);
+    EXPECT_NEAR(camera.position()[2], 0, 0.0001f);
 
     input = {};
     input.scrollDelta = 1;
     controller.update(camera, input, 0.016f, 1);
-    require(std::abs(camera.position()[0]) < 8);
+    EXPECT_TRUE(std::abs(camera.position()[0]) < 8);
 
     input = {};
     input.rightButtonDown = true;
     input.cursorDelta = {0.1, 0};
     controller.update(camera, input, 0.016f, 1);
-    require(std::abs(camera.position()[2]) > 0.1f);
+    EXPECT_TRUE(std::abs(camera.position()[2]) > 0.1f);
 
     const auto previous = camera.position();
     input.focused = false;
     controller.update(camera, input, 0.016f, 1);
-    require(camera.position() == previous);
+    EXPECT_TRUE(camera.position() == previous);
 
     Camera orthographic(Camera::Settings{.type = Camera::Type::Orthographic});
     orthographic.setPosition({0, 0, 8});
@@ -80,8 +72,8 @@ void testOrbit() {
     input = {};
     input.scrollDelta = 1;
     orthoController.update(orthographic, input, 0.016f, 1);
-    require(orthographic.settings().verticalSize < 10);
-    require(close(orthographic.position()[2], 8));
+    EXPECT_TRUE(orthographic.settings().verticalSize < 10);
+    EXPECT_NEAR(orthographic.position()[2], 8, 0.0001f);
 
     Camera fast, slow;
     fast.setPosition({0, 0, 8});
@@ -94,10 +86,10 @@ void testOrbit() {
     input.cursorDelta = {0.1, 0.05};
     fastController.update(fast, input, 0.01f, 1);
     slowController.update(slow, input, 0.1f, 1);
-    require(fast.position() == slow.position());
+    EXPECT_TRUE(fast.position() == slow.position());
 }
 
-void testViewRouting() {
+TEST(Viewer, RoutesDragAcrossViewportBoundaries) {
     Scene scene;
     const auto camera = scene.addCamera(Camera{});
     auto window = std::make_unique<TestWindow>();
@@ -116,40 +108,41 @@ void testViewRouting() {
     state->input.leftButtonDown = true;
     state->input.cursorDelta = {0.05, 0};
     viewer.update(0.016f);
-    require(leftState->calls == 1 && rightState->calls == 0);
-    require(close(static_cast<float>(leftState->lastInput.cursorDelta[0]), 0.1f));
-    require(close(leftState->lastAspect, 0.5f));
+    EXPECT_TRUE(leftState->calls == 1 && rightState->calls == 0);
+    EXPECT_NEAR(
+        static_cast<float>(leftState->lastInput.cursorDelta[0]), 0.1f, 0.0001f);
+    EXPECT_NEAR(leftState->lastAspect, 0.5f, 0.0001f);
 
     state->input.leftButtonPressed = false;
     viewer.update(0.016f);
-    require(leftState->calls == 2 && rightState->calls == 0);
+    EXPECT_TRUE(leftState->calls == 2 && rightState->calls == 0);
 
     state->input.pressPosition = {0.75, 0.5};
     state->input.leftButtonPressed = true;
     viewer.update(0.016f);
-    require(leftState->calls == 2 && rightState->calls == 1);
+    EXPECT_TRUE(leftState->calls == 2 && rightState->calls == 1);
 
     state->input.leftButtonPressed = false;
     state->input.leftButtonDown = false;
     viewer.update(0.016f);
-    require(rightState->calls == 2);
+    EXPECT_TRUE(rightState->calls == 2);
 
     state->input.scrollDelta = 1;
     viewer.update(0.016f);
-    require(rightState->calls == 3);
-    require(rightState->lastInput.scrollDelta == 1);
+    EXPECT_TRUE(rightState->calls == 3);
+    EXPECT_TRUE(rightState->lastInput.scrollDelta == 1);
 
     state->input.focused = false;
     viewer.update(0.016f);
-    require(rightState->calls == 3);
+    EXPECT_TRUE(rightState->calls == 3);
 
     state->input.focused = true;
     state->size = {0, 0};
     viewer.update(0.016f);
-    require(rightState->calls == 3);
+    EXPECT_TRUE(rightState->calls == 3);
 }
 
-void testControllerSettings() {
+TEST(OrbitCameraController, AppliesConfiguredLimits) {
     OrbitCameraControllerSettings settings;
     settings.rotationSpeedRadians = std::numbers::pi_v<float>;
     settings.pitchLimitRadians = 0.2f;
@@ -163,8 +156,8 @@ void testControllerSettings() {
     input.leftButtonDown = true;
     input.cursorDelta = {0.5, 1};
     controller.update(camera, input, 0.016f, 1);
-    require(close(camera.position()[0], -8 * std::cos(0.2f)));
-    require(close(camera.position()[1], 8 * std::sin(0.2f)));
+    EXPECT_NEAR(camera.position()[0], -8 * std::cos(0.2f), 0.0001f);
+    EXPECT_NEAR(camera.position()[1], 8 * std::sin(0.2f), 0.0001f);
 
     settings.minimumOrthographicSize = 2;
     settings.maximumOrthographicSize = 5;
@@ -176,24 +169,12 @@ void testControllerSettings() {
     input = {};
     input.scrollDelta = 100;
     zoomController.update(orthographic, input, 0.016f, 1);
-    require(close(orthographic.settings().verticalSize, 2));
+    EXPECT_NEAR(orthographic.settings().verticalSize, 2, 0.0001f);
 
     input.scrollDelta = -100;
     zoomController.update(orthographic, input, 0.016f, 1);
-    require(close(orthographic.settings().verticalSize, 5));
+    EXPECT_NEAR(orthographic.settings().verticalSize, 5, 0.0001f);
 
     settings.pitchLimitRadians = std::numbers::pi_v<float>;
-    bool rejected = false;
-    try {
-        OrbitCameraController invalid({}, settings);
-    } catch (const std::invalid_argument&) {
-        rejected = true;
-    }
-    require(rejected);
-}
-
-int main() {
-    testOrbit();
-    testViewRouting();
-    testControllerSettings();
+    EXPECT_THROW((OrbitCameraController({}, settings)), std::invalid_argument);
 }
