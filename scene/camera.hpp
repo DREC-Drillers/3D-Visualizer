@@ -6,7 +6,7 @@
 
 #include "transform.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct CameraId {
     std::uint32_t value;
@@ -44,4 +44,4 @@ private:
     Quaternion rotation_;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

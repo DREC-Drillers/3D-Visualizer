@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 enum class Topology { Points, Lines, Triangles };
 
@@ -17,4 +17,4 @@ struct Geometry {
     std::vector<Vertex> vertices;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

@@ -3,7 +3,7 @@
 #include <array>
 #include <glm/fwd.hpp>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class ShaderProgram {
 public:
@@ -29,4 +29,4 @@ private:
     unsigned int program_ = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

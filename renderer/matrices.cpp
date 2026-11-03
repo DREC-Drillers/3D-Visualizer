@@ -5,7 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <stdexcept>
 
-namespace triangles::visualizer {
+namespace visualizer {
 namespace {
 
 glm::vec3 vector(const std::array<float, 3>& value) {
@@ -59,4 +59,4 @@ glm::mat4 projectionMatrix(const Camera& camera, float aspect) {
                       settings.farPlane);
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

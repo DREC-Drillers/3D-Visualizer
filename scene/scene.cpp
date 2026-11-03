@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 Scene::Scene() {
     auto ambient = std::make_unique<AmbientLight>();
@@ -70,4 +70,4 @@ void Scene::removeCamera(CameraId id) {
     }
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

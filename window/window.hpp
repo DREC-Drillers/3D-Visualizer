@@ -2,7 +2,7 @@
 
 #include "../inputState.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct FramebufferSize {
     int width;
@@ -19,4 +19,4 @@ public:
     virtual FramebufferSize framebufferSize() const = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

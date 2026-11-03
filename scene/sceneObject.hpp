@@ -7,7 +7,7 @@
 #include "material.hpp"
 #include "transform.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct ObjectId {
     std::uint32_t value;
@@ -21,4 +21,4 @@ struct SceneObject {
     Material material;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

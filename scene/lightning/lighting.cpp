@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 LightId Lighting::addLight(std::unique_ptr<Light> light) {
     if (!light) {
@@ -49,4 +49,4 @@ void Lighting::visit(LightVisitor& visitor) const {
     }
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

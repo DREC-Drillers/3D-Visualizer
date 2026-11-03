@@ -16,7 +16,7 @@
 #include "shaderProgram.hpp"
 #include "shaders/matte.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
     glfwMakeContextCurrent(window_.getWindow());
@@ -243,4 +243,4 @@ void OpenGLRenderer::endFrame() {
     glfwSwapBuffers(window_.getWindow());
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

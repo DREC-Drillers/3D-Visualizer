@@ -2,7 +2,7 @@
 
 #include <numbers>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct OrbitCameraControllerSettings {
     float rotationSpeedRadians = 2.0f * std::numbers::pi_v<float>;
@@ -20,4 +20,4 @@ struct OrbitCameraControllerSettings {
     float maximumOrthographicSize = 10000.0f;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

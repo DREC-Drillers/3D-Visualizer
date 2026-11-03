@@ -2,7 +2,7 @@
 
 #include "../frame.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class Renderer {
 public:
@@ -10,4 +10,4 @@ public:
     virtual void render(const Frame& frame) = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

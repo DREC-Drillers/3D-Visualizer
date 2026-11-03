@@ -5,11 +5,11 @@
 #include "renderView.hpp"
 #include "window/window.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct Frame {
     std::span<const RenderView> views;
     FramebufferSize framebufferSize;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace triangles::visualizer::shaders {
+namespace visualizer::shaders {
 
 inline constexpr char flatColorVertex[] = R"(
 #version 330 core
@@ -16,4 +16,4 @@ out vec4 fragmentColor;
 void main() { fragmentColor = materialColor; }
 )";
 
-} // namespace triangles::visualizer::shaders
+} // namespace visualizer::shaders

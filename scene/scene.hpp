@@ -7,7 +7,7 @@
 #include "lightning/lighting.hpp"
 #include "sceneObject.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class Scene {
 public:
@@ -35,4 +35,4 @@ private:
     std::uint64_t nextCameraId_ = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

@@ -3,7 +3,7 @@
 #include <array>
 #include <cstddef>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 // Keep this capacity in sync with MAX_DIRECTIONAL_LIGHTS in matte.hpp.
 inline constexpr std::size_t maxOpenGLDirectionalLights = 16;
@@ -20,4 +20,4 @@ struct OpenGLLightingData {
     std::size_t directionalCount = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

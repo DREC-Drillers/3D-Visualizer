@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace triangles::visualizer {
+namespace visualizer {
 namespace {
 
 GLuint compileShader(GLenum type, const char* source) {
@@ -110,4 +110,4 @@ void ShaderProgram::setUniform(int location, int value) const {
     glUniform1i(location, value);
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

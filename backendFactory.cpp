@@ -5,7 +5,7 @@
 #include "renderer/openGLRenderer.hpp"
 #include "window/glfwWindow.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 ViewerBackend BackendFactory::create(const BackendSettings& settings) {
     switch (settings.windowLibrary) {
@@ -26,4 +26,4 @@ ViewerBackend BackendFactory::create(const BackendSettings& settings) {
     }
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

@@ -8,7 +8,7 @@
 #endif
 #include <GLFW/glfw3.h>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct GlfwWindow::Runtime {
     Runtime() {
@@ -194,4 +194,4 @@ GLFWwindow* GlfwWindow::getWindow() const noexcept {
     return window_;
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

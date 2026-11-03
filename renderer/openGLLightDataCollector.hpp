@@ -7,7 +7,7 @@
 #include "../scene/lightning/lightVisitor.hpp"
 #include "openGLLightingData.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 // Collects enabled scene lights for the OpenGL shader through Lighting::visit.
 class OpenGLLightDataCollector final : public LightVisitor {
@@ -38,4 +38,4 @@ private:
     OpenGLLightingData& data_;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

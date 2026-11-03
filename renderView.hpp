@@ -4,7 +4,7 @@
 #include "scene/scene.hpp"
 #include "viewport.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct RenderView {
     const Scene& scene;
@@ -12,4 +12,4 @@ struct RenderView {
     NormalizedViewport viewport;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 GLenum primitiveTopology(Topology topology) {
     switch (topology) {
@@ -17,4 +17,4 @@ GLenum primitiveTopology(Topology topology) {
     }
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

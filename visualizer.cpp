@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <thread>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 void Viewer::addView(Scene& scene, CameraId camera, NormalizedViewport viewport,
                      std::unique_ptr<CameraController> controller) {
@@ -140,4 +140,4 @@ void Viewer::run() {
     }
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

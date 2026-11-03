@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 Camera::Camera(Settings settings) {
     setSettings(settings);
@@ -81,4 +81,4 @@ const Quaternion& Camera::rotation() const noexcept {
     return rotation_;
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

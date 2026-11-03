@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct Quaternion {
     float x = 0.0f;
@@ -17,4 +17,4 @@ struct Transform {
     std::array<float, 3> scale{1.0f, 1.0f, 1.0f};
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

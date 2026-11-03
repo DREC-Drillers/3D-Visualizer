@@ -7,7 +7,7 @@
 
 #include "light.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct LightId {
     std::uint32_t value;
@@ -33,4 +33,4 @@ private:
     std::uint64_t nextLightId_ = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

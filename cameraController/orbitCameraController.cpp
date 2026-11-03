@@ -7,7 +7,7 @@
 #include <numbers>
 #include <stdexcept>
 
-namespace triangles::visualizer {
+namespace visualizer {
 namespace {
 
 glm::vec3 vector(const std::array<float, 3>& value) {
@@ -164,4 +164,4 @@ void OrbitCameraController::applyTo(Camera& camera) const {
     camera.setRotation({rotation.x, rotation.y, rotation.z, rotation.w});
 }
 
-} // namespace triangles::visualizer
+} // namespace visualizer

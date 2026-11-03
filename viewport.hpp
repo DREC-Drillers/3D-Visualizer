@@ -1,6 +1,6 @@
 #pragma once
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct NormalizedViewport {
     float x = 0.0f;
@@ -9,4 +9,4 @@ struct NormalizedViewport {
     float height = 1.0f;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

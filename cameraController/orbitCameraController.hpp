@@ -5,7 +5,7 @@
 #include "cameraController.hpp"
 #include "cameraControllerSettings.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class OrbitCameraController final : public CameraController {
 public:
@@ -29,4 +29,4 @@ private:
     float pitch_ = 0.0f;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

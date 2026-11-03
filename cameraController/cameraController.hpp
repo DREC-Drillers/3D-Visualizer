@@ -3,7 +3,7 @@
 #include "../inputState.hpp"
 #include "../scene/camera.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class CameraController {
 public:
@@ -14,4 +14,4 @@ public:
                         float aspect) = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

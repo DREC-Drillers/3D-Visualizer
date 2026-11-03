@@ -4,7 +4,7 @@
 
 #include "../scene/geometry.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 GLenum primitiveTopology(Topology topology);
 

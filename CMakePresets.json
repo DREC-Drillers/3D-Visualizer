@@ -1,0 +1,76 @@
+{
+  "version": 5,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "VISUALIZER_BUILD_EXAMPLES": false
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Visualizer library with tests",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": true,
+        "VISUALIZER_BUILD_TESTS": true
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Visualizer library without tests or examples",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTING": false,
+        "VISUALIZER_BUILD_TESTS": false
+      }
+    },
+    {
+      "name": "demo",
+      "displayName": "Interactive lighting demo with tests",
+      "inherits": "debug",
+      "cacheVariables": {
+        "VISUALIZER_BUILD_EXAMPLES": true
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "demo",
+      "configurePreset": "demo"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    },
+    {
+      "name": "demo",
+      "configurePreset": "demo",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    }
+  ]
+}

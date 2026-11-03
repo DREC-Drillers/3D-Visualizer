@@ -5,7 +5,7 @@
 #include "openGLLightingData.hpp"
 #include "renderer.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class GlfwWindow;
 class ShaderProgram;
@@ -48,4 +48,4 @@ private:
     std::array<int, maxOpenGLDirectionalLights> radianceUniformLocations_{};
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

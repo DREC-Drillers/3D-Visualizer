@@ -8,7 +8,7 @@
 
 struct GLFWwindow;
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 // Construct, use and destroy GLFW windows on the main thread.
 class GlfwWindow final : public Window {
@@ -42,4 +42,4 @@ private:
     std::array<double, 2> previousCursorPosition_{};
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

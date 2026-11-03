@@ -9,7 +9,7 @@
 #include "renderView.hpp"
 #include "visualizerBackend.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class Viewer {
 private:
@@ -44,4 +44,4 @@ public:
     void drawFrame();
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

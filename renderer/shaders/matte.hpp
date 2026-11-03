@@ -1,6 +1,6 @@
 #pragma once
 
-namespace triangles::visualizer::shaders {
+namespace visualizer::shaders {
 
 inline constexpr char matteVertex[] = R"(
 #version 330 core
@@ -81,4 +81,4 @@ void main() {
 }
 )";
 
-} // namespace triangles::visualizer::shaders
+} // namespace visualizer::shaders

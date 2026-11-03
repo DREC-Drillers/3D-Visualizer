@@ -4,7 +4,7 @@
 
 #include "lightVisitor.hpp"
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class Light {
 public:
@@ -31,4 +31,4 @@ public:
     void accept(LightVisitor& visitor) const override { visitor.visit(*this); }
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

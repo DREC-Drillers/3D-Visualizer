@@ -1,6 +1,6 @@
 #pragma once
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 class AmbientLight;
 class DirectionalLight;
@@ -13,4 +13,4 @@ public:
     virtual void visit(const DirectionalLight& light) = 0;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer

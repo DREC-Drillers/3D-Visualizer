@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace triangles::visualizer {
+namespace visualizer {
 
 struct InputState {
     std::array<double, 2> cursorPosition{};
@@ -17,4 +17,4 @@ struct InputState {
     bool focused = true;
 };
 
-} // namespace triangles::visualizer
+} // namespace visualizer
