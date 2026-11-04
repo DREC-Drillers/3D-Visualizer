@@ -1,8 +1,8 @@
 #pragma once
 
+#include "core/viewport.hpp"
 #include "scene/camera.hpp"
 #include "scene/scene.hpp"
-#include "viewport.hpp"
 
 namespace visualizer {
 

@@ -13,10 +13,10 @@
 #include <utility>
 #include <vector>
 
-#include "backendFactory.hpp"
 #include "cameraController/orbitCameraController.hpp"
+#include "core/backendFactory.hpp"
+#include "core/visualizer.hpp"
 #include "scene/lightning/light.hpp"
-#include "visualizer.hpp"
 #include "window/glfwWindow.hpp"
 
 namespace {

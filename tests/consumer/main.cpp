@@ -1,6 +1,6 @@
-#include <backendFactory.hpp>
+#include <core/backendFactory.hpp>
+#include <core/visualizer.hpp>
 #include <utility>
-#include <visualizer.hpp>
 
 int main(int argc, char**) {
     visualizer::Scene scene;

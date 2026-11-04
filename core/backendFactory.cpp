@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-#include "renderer/openGLRenderer.hpp"
-#include "window/glfwWindow.hpp"
+#include "../renderer/openGLRenderer.hpp"
+#include "../window/glfwWindow.hpp"
 
 namespace visualizer {
 

@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 
-#include "cameraController/cameraController.hpp"
-#include "renderView.hpp"
+#include "../cameraController/cameraController.hpp"
+#include "../renderView.hpp"
 #include "visualizerBackend.hpp"
 
 namespace visualizer {

@@ -61,12 +61,12 @@ set_target_properties(visualizer_glad PROPERTIES
     EXPORT_NAME glad)
 
 add_library(visualizer STATIC
-    backendFactory.cpp
+    core/backendFactory.cpp
     scene/camera.cpp
     scene/scene.cpp
     scene/lightning/lighting.cpp
     window/glfwWindow.cpp
-    visualizer.cpp
+    core/visualizer.cpp
     cameraController/orbitCameraController.cpp
     renderer/openGLRenderer.cpp
     renderer/openGLRenderDataPreparer.cpp
@@ -141,10 +141,9 @@ install(TARGETS visualizer visualizer_glad
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES
-    backendFactory.hpp backendSettings.hpp frame.hpp inputState.hpp renderView.hpp
-    viewport.hpp visualizer.hpp visualizerBackend.hpp
+    frame.hpp inputState.hpp renderView.hpp
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/visualizer)
-install(DIRECTORY scene cameraController window
+install(DIRECTORY core scene cameraController window
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/visualizer
     FILES_MATCHING PATTERN "*.hpp")
 install(FILES renderer/renderer.hpp
