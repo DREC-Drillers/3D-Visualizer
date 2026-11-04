@@ -78,8 +78,11 @@ void Viewer::update(float deltaTime) {
 
         input.cursorDelta[0] /= view.viewport.width;
         input.cursorDelta[1] /= view.viewport.height;
-        const float aspect = (size.width * view.viewport.width) /
-                             (size.height * view.viewport.height);
+        const double viewportWidth =
+            static_cast<double>(size.width) * view.viewport.width;
+        const double viewportHeight =
+            static_cast<double>(size.height) * view.viewport.height;
+        const float aspect = static_cast<float>(viewportWidth / viewportHeight);
 
         view.controller->update(
             view.scene.camera(view.camera), input, deltaTime, aspect);

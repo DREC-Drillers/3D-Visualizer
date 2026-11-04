@@ -138,14 +138,15 @@ void OpenGLRenderer::beginFrame() {
 
 FramebufferSize OpenGLRenderer::prepareViewport(const NormalizedViewport& viewport,
                                                 FramebufferSize framebufferSize) {
-    const int left =
-        static_cast<int>(std::lround(viewport.x * framebufferSize.width));
-    const int right = static_cast<int>(
-        std::lround((viewport.x + viewport.width) * framebufferSize.width));
-    const int top =
-        static_cast<int>(std::lround(viewport.y * framebufferSize.height));
-    const int bottom = static_cast<int>(
-        std::lround((viewport.y + viewport.height) * framebufferSize.height));
+    const double width = framebufferSize.width;
+    const double height = framebufferSize.height;
+
+    const int left = static_cast<int>(std::lround(viewport.x * width));
+    const int right =
+        static_cast<int>(std::lround((viewport.x + viewport.width) * width));
+    const int top = static_cast<int>(std::lround(viewport.y * height));
+    const int bottom =
+        static_cast<int>(std::lround((viewport.y + viewport.height) * height));
 
     const FramebufferSize viewportSize{right - left, bottom - top};
     if (viewportSize.width <= 0 || viewportSize.height <= 0) {
@@ -167,8 +168,8 @@ void OpenGLRenderer::renderView(const RenderView& view,
     }
 
     const auto& camera = view.scene.camera(view.camera);
-    const float aspect =
-        static_cast<float>(viewportSize.width) / viewportSize.height;
+    const float aspect = static_cast<float>(static_cast<double>(viewportSize.width) /
+                                            viewportSize.height);
     const auto viewProjection =
         projectionMatrix(camera, aspect) * viewMatrix(camera);
 
