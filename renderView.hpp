@@ -10,6 +10,9 @@ struct RenderView {
     const Scene& scene;
     CameraId camera;
     NormalizedViewport viewport;
+
+    RenderView(const Scene& scene, CameraId camera, NormalizedViewport viewport = {})
+        : scene(scene), camera(camera), viewport(viewport) {}
 };
 
 } // namespace visualizer

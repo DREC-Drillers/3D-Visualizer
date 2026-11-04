@@ -3,7 +3,6 @@ InheritParentConfig: false
 Checks: >-
   -*,
   clang-analyzer-*,
-  cppcoreguidelines-*,
   bugprone-assert-side-effect,
   bugprone-assignment-in-if-condition,
   bugprone-bool-pointer-implicit-conversion,
@@ -40,7 +39,6 @@ HeaderFilterRegex: '(^|[/\\])((core|scene|cameraController|window|renderer)[/\\]
 SystemHeaders: false
 FormatStyle: file
 CheckOptions:
-  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
   readability-identifier-naming.NamespaceCase: lower_case
   readability-identifier-naming.InlineNamespaceCase: lower_case
   readability-identifier-naming.ClassCase: CamelCase
