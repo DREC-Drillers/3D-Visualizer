@@ -29,7 +29,7 @@ GLuint compileShader(GLenum type, const char* source) {
 GLuint createProgram(const char* vertexSource, const char* fragmentSource) {
     const GLuint vertex = compileShader(GL_VERTEX_SHADER, vertexSource);
 
-    GLuint fragment;
+    GLuint fragment = 0;
     try {
         fragment = compileShader(GL_FRAGMENT_SHADER, fragmentSource);
     } catch (...) {

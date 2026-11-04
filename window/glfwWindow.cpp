@@ -101,8 +101,11 @@ InputState GlfwWindow::takeInput() {
 }
 
 std::array<double, 2> GlfwWindow::normalizedCursorPosition() const {
-    double x, y;
-    int width, height;
+    double x = 0.0;
+    double y = 0.0;
+    int width = 0;
+    int height = 0;
+
     glfwGetCursorPos(window_, &x, &y);
     glfwGetWindowSize(window_, &width, &height);
 
@@ -144,7 +147,9 @@ void GlfwWindow::setupInputCallbacks() {
 }
 
 void GlfwWindow::onCursorPosition(double x, double y) {
-    int width, height;
+    int width = 0;
+    int height = 0;
+
     glfwGetWindowSize(window_, &width, &height);
 
     if (input_.focused && width > 0 && height > 0) {
