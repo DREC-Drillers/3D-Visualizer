@@ -47,8 +47,8 @@ private:
 
     int ambientColorUniformLocation_ = -1;
     int directionalCountUniformLocation_ = -1;
-    std::array<int, maxOpenGLDirectionalLights> towardLightUniformLocations_{};
-    std::array<int, maxOpenGLDirectionalLights> radianceUniformLocations_{};
+    std::array<int, MAX_OPEN_GL_DIRECTIONAL_LIGHTS> towardLightUniformLocations_{};
+    std::array<int, MAX_OPEN_GL_DIRECTIONAL_LIGHTS> radianceUniformLocations_{};
 };
 
 } // namespace visualizer

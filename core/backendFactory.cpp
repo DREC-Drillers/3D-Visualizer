@@ -10,7 +10,7 @@ namespace visualizer {
 ViewerBackend BackendFactory::create(const BackendSettings& settings) {
     switch (settings.windowLibrary) {
         case WindowLibrary::GLFW: {
-            if (settings.graphics != GraphicsApi::OpenGL) {
+            if (settings.graphics != GraphicsApi::OPEN_GL) {
                 throw std::invalid_argument(
                     "Only the OpenGL renderer is implemented");
             }

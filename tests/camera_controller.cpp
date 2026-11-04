@@ -65,7 +65,7 @@ TEST(OrbitCameraController, HandlesInputSequenceAndFocus) {
     controller.update(camera, input, 0.016f, 1);
     EXPECT_TRUE(camera.position() == previous);
 
-    Camera orthographic(Camera::Settings{.type = Camera::Type::Orthographic});
+    Camera orthographic(Camera::Settings{.type = Camera::Type::ORTHOGRAPHIC});
     orthographic.setPosition({0, 0, 8});
     OrbitCameraController orthoController;
     orthoController.attach(orthographic);
@@ -161,7 +161,7 @@ TEST(OrbitCameraController, AppliesConfiguredLimits) {
 
     settings.minimumOrthographicSize = 2;
     settings.maximumOrthographicSize = 5;
-    Camera orthographic(Camera::Settings{.type = Camera::Type::Orthographic});
+    Camera orthographic(Camera::Settings{.type = Camera::Type::ORTHOGRAPHIC});
     orthographic.setPosition({0, 0, 8});
     OrbitCameraController zoomController({}, settings);
     zoomController.attach(orthographic);

@@ -116,7 +116,7 @@ void OrbitCameraController::pan(const Camera& camera, const InputState& input,
 
     const auto& settings = camera.settings();
     const float visibleHeight =
-        settings.type == Camera::Type::Perspective
+        settings.type == Camera::Type::PERSPECTIVE
             ? 2.0f * distance_ * std::tan(settings.verticalFovRadians / 2.0f)
             : settings.verticalSize;
     const auto rotation = orientation(yaw_, pitch_);
@@ -142,7 +142,7 @@ void OrbitCameraController::zoom(Camera& camera, double scrollDelta) {
                                                settings_.maximumScrollDelta)));
     auto settings = camera.settings();
 
-    if (settings.type == Camera::Type::Orthographic) {
+    if (settings.type == Camera::Type::ORTHOGRAPHIC) {
         settings.verticalSize = std::clamp(settings.verticalSize * factor,
                                            settings_.minimumOrthographicSize,
                                            settings_.maximumOrthographicSize);

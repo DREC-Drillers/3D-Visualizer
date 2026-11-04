@@ -5,7 +5,7 @@
 
 namespace visualizer {
 
-enum class GraphicsApi { OpenGL, Vulkan };
+enum class GraphicsApi { OPEN_GL, VULKAN };
 
 enum class WindowLibrary { GLFW };
 
@@ -18,7 +18,7 @@ struct WindowSettings {
 };
 
 struct BackendSettings {
-    GraphicsApi graphics = GraphicsApi::OpenGL;
+    GraphicsApi graphics = GraphicsApi::OPEN_GL;
     WindowLibrary windowLibrary = WindowLibrary::GLFW;
     WindowSettings window;
 };

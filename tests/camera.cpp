@@ -25,7 +25,7 @@ TEST_P(InvalidCameraValue, RejectsInvalidFieldOfView) {
 
 TEST_P(InvalidCameraValue, RejectsInvalidOrthographicSize) {
     Camera::Settings settings;
-    settings.type = Camera::Type::Orthographic;
+    settings.type = Camera::Type::ORTHOGRAPHIC;
     settings.verticalSize = GetParam();
 
     EXPECT_THROW((Camera(settings)), std::invalid_argument);

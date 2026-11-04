@@ -113,17 +113,17 @@ TEST(Lighting, MovePreservesOwnedSources) {
 
 TEST(OpenGLLightDataCollector, EnforcesEnabledDirectionalSourceLimit) {
     Lighting lighting;
-    for (std::size_t i = 0; i < maxOpenGLDirectionalLights; ++i) {
+    for (std::size_t i = 0; i < MAX_OPEN_GL_DIRECTIONAL_LIGHTS; ++i) {
         lighting.addLight(std::make_unique<DirectionalLight>());
     }
 
-    EXPECT_EQ(collect(lighting).directionalCount, maxOpenGLDirectionalLights);
+    EXPECT_EQ(collect(lighting).directionalCount, MAX_OPEN_GL_DIRECTIONAL_LIGHTS);
 
     const auto extra = lighting.addLight(std::make_unique<DirectionalLight>());
     EXPECT_THROW(collect(lighting), std::length_error);
 
     lighting.light(extra).enabled = false;
-    EXPECT_EQ(collect(lighting).directionalCount, maxOpenGLDirectionalLights);
+    EXPECT_EQ(collect(lighting).directionalCount, MAX_OPEN_GL_DIRECTIONAL_LIGHTS);
 }
 
 TEST(Scene, DefaultLightingContainsAmbientAndDirectionalSources) {

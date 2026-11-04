@@ -17,7 +17,7 @@ void Camera::setSettings(Settings settings) {
     }
 
     switch (settings.type) {
-        case Type::Perspective:
+        case Type::PERSPECTIVE:
             if (!std::isfinite(settings.verticalFovRadians) ||
                 settings.verticalFovRadians <= 0.0f ||
                 settings.verticalFovRadians >= std::numbers::pi_v<float>) {
@@ -25,7 +25,7 @@ void Camera::setSettings(Settings settings) {
                     "Camera vertical FOV must be between 0 and pi radians");
             }
             break;
-        case Type::Orthographic:
+        case Type::ORTHOGRAPHIC:
             if (!std::isfinite(settings.verticalSize) ||
                 settings.verticalSize <= 0.0f) {
                 throw std::invalid_argument(

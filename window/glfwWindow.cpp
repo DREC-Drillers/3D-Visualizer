@@ -50,14 +50,14 @@ GlfwWindow::GlfwWindow(const WindowSettings& settings, GraphicsApi graphics) {
 
     glfwDefaultWindowHints();
     switch (graphics) {
-        case GraphicsApi::OpenGL:
+        case GraphicsApi::OPEN_GL:
             glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
             break;
-        case GraphicsApi::Vulkan:
+        case GraphicsApi::VULKAN:
             throw std::invalid_argument("not implemented yet");
             break;
         default:

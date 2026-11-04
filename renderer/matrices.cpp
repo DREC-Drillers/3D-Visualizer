@@ -41,7 +41,7 @@ glm::mat4 viewMatrix(const Camera& camera) {
 
 glm::mat4 projectionMatrix(const Camera& camera, float aspect) {
     const auto& settings = camera.settings();
-    if (settings.type == Camera::Type::Perspective) {
+    if (settings.type == Camera::Type::PERSPECTIVE) {
         return glm::perspective(settings.verticalFovRadians,
                                 aspect,
                                 settings.nearPlane,

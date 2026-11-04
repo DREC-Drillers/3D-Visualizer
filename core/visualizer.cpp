@@ -52,12 +52,12 @@ std::optional<std::size_t> Viewer::viewAt(std::array<double, 2> position) const 
 }
 
 void Viewer::update(float deltaTime) {
-    if (!ViewerBackend_.window) {
+    if (!backend_.window) {
         throw std::logic_error("Updating requires a window");
     }
 
-    auto input = ViewerBackend_.window->takeInput();
-    const auto size = ViewerBackend_.window->framebufferSize();
+    auto input = backend_.window->takeInput();
+    const auto size = backend_.window->framebufferSize();
     if (!input.focused || size.width <= 0 || size.height <= 0) {
         draggedView_.reset();
         return;
@@ -94,11 +94,11 @@ void Viewer::update(float deltaTime) {
 }
 
 void Viewer::drawFrame() {
-    if (!ViewerBackend_.window || !ViewerBackend_.renderer) {
+    if (!backend_.window || !backend_.renderer) {
         throw std::logic_error("Drawing requires a window and a renderer");
     }
 
-    const auto size = ViewerBackend_.window->framebufferSize();
+    const auto size = backend_.window->framebufferSize();
     if (size.width <= 0 || size.height <= 0) {
         return;
     }
@@ -110,15 +110,15 @@ void Viewer::drawFrame() {
     }
 
     const Frame frame{renderViews, size};
-    ViewerBackend_.renderer->render(frame);
+    backend_.renderer->render(frame);
 }
 
 void Viewer::run() {
-    if (!ViewerBackend_.window || !ViewerBackend_.renderer) {
+    if (!backend_.window || !backend_.renderer) {
         throw std::logic_error("Running requires a window and a renderer");
     }
 
-    auto& window = *ViewerBackend_.window;
+    auto& window = *backend_.window;
     auto previousTime = std::chrono::steady_clock::now();
 
     while (!window.shouldClose()) {

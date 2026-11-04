@@ -75,5 +75,5 @@ TEST_P(ProjectionTest, AccountsForViewportAspectRatio) {
 }
 
 INSTANTIATE_TEST_SUITE_P(CameraTypes, ProjectionTest,
-                         ::testing::Values(Camera::Type::Perspective,
-                                           Camera::Type::Orthographic));
+                         ::testing::Values(Camera::Type::PERSPECTIVE,
+                                           Camera::Type::ORTHOGRAPHIC));

@@ -20,7 +20,7 @@ private:
         std::unique_ptr<CameraController> controller;
     };
 
-    ViewerBackend ViewerBackend_;
+    ViewerBackend backend_;
     std::vector<ControlledView> views_;
     std::optional<std::size_t> draggedView_;
 
@@ -28,13 +28,13 @@ private:
 
 public:
     Viewer() = default;
-    explicit Viewer(ViewerBackend backend) : ViewerBackend_(std::move(backend)) {}
+    explicit Viewer(ViewerBackend backend) : backend_(std::move(backend)) {}
 
     void addView(Scene& scene, CameraId camera, NormalizedViewport viewport = {},
                  std::unique_ptr<CameraController> controller = nullptr);
 
     void addBackend(ViewerBackend backend) {
-        ViewerBackend_ = std::move(backend);
+        backend_ = std::move(backend);
         draggedView_.reset();
     }
 

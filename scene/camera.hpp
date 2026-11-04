@@ -16,10 +16,10 @@ struct CameraId {
 
 class Camera {
 public:
-    enum class Type { Perspective, Orthographic };
+    enum class Type { PERSPECTIVE, ORTHOGRAPHIC };
 
     struct Settings {
-        Type type = Type::Perspective;
+        Type type = Type::PERSPECTIVE;
         float verticalFovRadians = std::numbers::pi_v<float> / 4.0f;
         float verticalSize = 10.0f;
         float nearPlane = 0.1f;

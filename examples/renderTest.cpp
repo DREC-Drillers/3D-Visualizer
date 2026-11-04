@@ -219,7 +219,7 @@ int main() {
         const auto lights = configureLighting(scene.lighting);
 
         const Geometry geometry{
-            .topology = Topology::Triangles,
+            .topology = Topology::TRIANGLES,
             .vertices = {{{-0.7f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
                          {{0.7f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
                          {{0.0f, 0.7f, 0.0f}, {0.0f, 0.0f, 1.0f}}}};

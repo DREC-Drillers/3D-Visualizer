@@ -27,8 +27,8 @@ OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
     glfwSwapInterval(1);
 
     try {
-        shaderProgram_ = std::make_unique<ShaderProgram>(shaders::matteVertex,
-                                                         shaders::matteFragment);
+        shaderProgram_ = std::make_unique<ShaderProgram>(shaders::MATTE_VERTEX,
+                                                         shaders::MATTE_FRAGMENT);
 
         modelViewProjectionUniformLocation_ =
             shaderProgram_->uniformLocation("modelViewProjection");
@@ -44,7 +44,7 @@ OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
         directionalCountUniformLocation_ =
             shaderProgram_->uniformLocation("directionalCount");
 
-        for (std::size_t i = 0; i < maxOpenGLDirectionalLights; ++i) {
+        for (std::size_t i = 0; i < MAX_OPEN_GL_DIRECTIONAL_LIGHTS; ++i) {
             const auto prefix = "directionalLights[" + std::to_string(i) + "].";
 
             towardLightUniformLocations_[i] =
@@ -206,7 +206,7 @@ void OpenGLRenderer::renderView(const RenderView& view,
         shaderProgram_->setUniform(normalMatrixUniformLocation_, normalMatrix);
         shaderProgram_->setUniform(materialLitUniformLocation_,
                                    object.material.lit && object.geometry.topology ==
-                                                              Topology::Triangles);
+                                                              Topology::TRIANGLES);
         shaderProgram_->setUniform(modelViewProjectionUniformLocation_,
                                    modelViewProjection);
         shaderProgram_->setUniform(materialColorUniformLocation_,

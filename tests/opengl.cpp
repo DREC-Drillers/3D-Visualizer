@@ -31,7 +31,7 @@ protected:
         settings.resizable = false;
 
         ASSERT_NO_THROW(
-            window_ = std::make_unique<GlfwWindow>(settings, GraphicsApi::OpenGL));
+            window_ = std::make_unique<GlfwWindow>(settings, GraphicsApi::OPEN_GL));
         glfwMakeContextCurrent(window_->getWindow());
         ASSERT_NE(gladLoadGL(glfwGetProcAddress), 0);
         contextReady_ = true;
@@ -75,7 +75,7 @@ protected:
         ASSERT_EQ(glGetError(), GL_NO_ERROR);
 
         scene_.lighting.clear();
-        Camera camera(Camera::Settings{.type = Camera::Type::Orthographic,
+        Camera camera(Camera::Settings{.type = Camera::Type::ORTHOGRAPHIC,
                                        .verticalSize = 2.0f,
                                        .nearPlane = 0.1f,
                                        .farPlane = 10.0f});
@@ -204,7 +204,7 @@ TEST_F(OpenGLRendering, AddsColoredSourcesAndUpdatesCountsBetweenFrames) {
 }
 
 TEST_F(OpenGLRendering, SupportsMaximumDirectionalSourceCount) {
-    for (std::size_t i = 0; i < maxOpenGLDirectionalLights; ++i) {
+    for (std::size_t i = 0; i < MAX_OPEN_GL_DIRECTIONAL_LIGHTS; ++i) {
         directional({0, 0, 1}, {1, 1, 1}, 0.03125f);
     }
 
@@ -336,12 +336,12 @@ TEST_F(OpenGLRendering, EmptyGeometryAndZeroSizeFrameAreHandled) {
 
 TEST_F(OpenGLRendering, ShaderFailuresReportExceptionsWithoutBreakingNextDraw) {
     constexpr char BAD_SHADER[] = "#version 330 core\nvoid main() { invalid_glsl; }";
-    EXPECT_THROW((ShaderProgram(BAD_SHADER, shaders::flatColorFragment)),
+    EXPECT_THROW((ShaderProgram(BAD_SHADER, shaders::FLAT_COLOR_FRAGMENT)),
                  std::runtime_error);
-    EXPECT_THROW((ShaderProgram(shaders::flatColorVertex, BAD_SHADER)),
+    EXPECT_THROW((ShaderProgram(shaders::FLAT_COLOR_VERTEX, BAD_SHADER)),
                  std::runtime_error);
 
-    ShaderProgram flat(shaders::flatColorVertex, shaders::flatColorFragment);
+    ShaderProgram flat(shaders::FLAT_COLOR_VERTEX, shaders::FLAT_COLOR_FRAGMENT);
     EXPECT_GE(flat.uniformLocation("materialColor"), 0);
     EXPECT_EQ(flat.uniformLocation("missingUniform"), -1);
 
@@ -368,7 +368,7 @@ TEST_P(UnlitPrimitive, KeepsMaterialColorWithoutLightsOrNormals) {
     auto& geometry = scene_.object(object_).geometry;
     geometry.topology = GetParam();
     geometry.vertices = {{{PIXEL_CENTER, PIXEL_CENTER, 0}, {}}};
-    if (GetParam() == Topology::Lines) {
+    if (GetParam() == Topology::LINES) {
         geometry.vertices = {{{-0.8f, PIXEL_CENTER, 0}, {}},
                              {{0.8f, PIXEL_CENTER, 0}, {}}};
     }
@@ -378,6 +378,6 @@ TEST_P(UnlitPrimitive, KeepsMaterialColorWithoutLightsOrNormals) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Topologies, UnlitPrimitive,
-                         ::testing::Values(Topology::Points, Topology::Lines));
+                         ::testing::Values(Topology::POINTS, Topology::LINES));
 
 } // namespace

@@ -6,11 +6,11 @@ namespace visualizer {
 
 GLenum primitiveTopology(Topology topology) {
     switch (topology) {
-        case Topology::Points:
+        case Topology::POINTS:
             return GL_POINTS;
-        case Topology::Lines:
+        case Topology::LINES:
             return GL_LINES;
-        case Topology::Triangles:
+        case Topology::TRIANGLES:
             return GL_TRIANGLES;
         default:
             throw std::invalid_argument("Unknown geometry topology");
