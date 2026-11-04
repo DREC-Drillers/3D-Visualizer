@@ -1,5 +1,6 @@
 #include "shaderProgram.hpp"
 
+#include <array>
 #include <glad/gl.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <stdexcept>
@@ -16,11 +17,13 @@ GLuint compileShader(GLenum type, const char* source) {
     GLint success = GL_FALSE;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (success != GL_TRUE) {
-        char log[2048]{};
-        glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
+        std::array<char, 2048> log{};
+        glGetShaderInfoLog(
+            shader, static_cast<GLsizei>(log.size()), nullptr, log.data());
         glDeleteShader(shader);
 
-        throw std::runtime_error(std::string("Shader compilation failed: ") + log);
+        throw std::runtime_error(std::string("Shader compilation failed: ") +
+                                 log.data());
     }
 
     return shader;
@@ -49,11 +52,13 @@ GLuint createProgram(const char* vertexSource, const char* fragmentSource) {
     GLint success = GL_FALSE;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (success != GL_TRUE) {
-        char log[2048]{};
-        glGetProgramInfoLog(program, sizeof(log), nullptr, log);
+        std::array<char, 2048> log{};
+        glGetProgramInfoLog(
+            program, static_cast<GLsizei>(log.size()), nullptr, log.data());
         glDeleteProgram(program);
 
-        throw std::runtime_error(std::string("Shader linking failed: ") + log);
+        throw std::runtime_error(std::string("Shader linking failed: ") +
+                                 log.data());
     }
 
     return program;

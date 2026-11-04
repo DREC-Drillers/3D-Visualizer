@@ -2,6 +2,8 @@
 
 namespace visualizer::shaders {
 
+// Static, null-terminated GLSL text passed to the OpenGL C API.
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
 inline constexpr char matteVertex[] = R"(
 #version 330 core
 layout(location = 0) in vec3 position;
@@ -21,6 +23,8 @@ void main() {
 }
 )";
 
+// Static, null-terminated GLSL text passed to the OpenGL C API.
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
 inline constexpr char matteFragment[] = R"(
 #version 330 core
 in vec3 worldPosition;

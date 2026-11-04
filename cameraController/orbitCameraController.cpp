@@ -1,6 +1,7 @@
 #include "orbitCameraController.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -20,17 +21,17 @@ glm::quat orientation(float yaw, float pitch) {
 }
 
 void validateSettings(const OrbitCameraControllerSettings& settings) {
-    const double positiveValues[] = {settings.rotationSpeedRadians,
-                                     settings.pitchLimitRadians,
-                                     settings.panSpeed,
-                                     settings.zoomSpeed,
-                                     settings.maximumScrollDelta,
-                                     settings.initialDistance,
-                                     settings.minimumDistance,
-                                     settings.nearPlaneDistanceFactor,
-                                     settings.farPlaneDistanceFactor,
-                                     settings.minimumOrthographicSize,
-                                     settings.maximumOrthographicSize};
+    const std::array<double, 11> positiveValues = {settings.rotationSpeedRadians,
+                                                   settings.pitchLimitRadians,
+                                                   settings.panSpeed,
+                                                   settings.zoomSpeed,
+                                                   settings.maximumScrollDelta,
+                                                   settings.initialDistance,
+                                                   settings.minimumDistance,
+                                                   settings.nearPlaneDistanceFactor,
+                                                   settings.farPlaneDistanceFactor,
+                                                   settings.minimumOrthographicSize,
+                                                   settings.maximumOrthographicSize};
 
     for (double value : positiveValues) {
         if (!std::isfinite(value) || value <= 0) {
