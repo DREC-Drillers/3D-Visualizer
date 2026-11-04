@@ -129,6 +129,9 @@ def main():
             ["clang-format-18", "--style=file", *flags, *map(str, files)], cwd=ROOT
         )
 
+    # Tests retain formatting checks, but are excluded from clang-tidy analysis.
+    analysis_files = [source for source in files if source.parts[0] != "tests"]
+
     build_dir = (ROOT / args.build_dir).resolve()
     with (build_dir / "compile_commands.json").open(encoding="utf-8") as stream:
         database = json.load(stream)
@@ -138,7 +141,7 @@ def main():
     options = []
     if args.check == "style-fix":
         check_format_version()
-        if fix_naming(files, build_dir, compiled) != 0:
+        if fix_naming(analysis_files, build_dir, compiled) != 0:
             return 1
         if subprocess.call(
             ["clang-format-18", "--style=file", "-i", *map(str, files)], cwd=ROOT
@@ -147,7 +150,7 @@ def main():
         options = ["--checks=-*,readability-identifier-naming"]
 
     failed = False
-    for source in files:
+    for source in analysis_files:
         if source.suffix not in SOURCE_SUFFIXES:
             continue
         command = tidy_command(source, build_dir, compiled, options)

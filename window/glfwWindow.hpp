@@ -19,6 +19,9 @@ public:
     GlfwWindow(const GlfwWindow&) = delete;
     GlfwWindow& operator=(const GlfwWindow&) = delete;
 
+    GlfwWindow(GlfwWindow&&) = delete;
+    GlfwWindow& operator=(GlfwWindow&&) = delete;
+
     void pollEvents() override;
     InputState takeInput() override;
     bool shouldClose() const override;

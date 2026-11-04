@@ -13,6 +13,9 @@ public:
     ShaderProgram(const ShaderProgram&) = delete;
     ShaderProgram& operator=(const ShaderProgram&) = delete;
 
+    ShaderProgram(ShaderProgram&&) = delete;
+    ShaderProgram& operator=(ShaderProgram&&) = delete;
+
     void bind() const;
     static void unbind();
 

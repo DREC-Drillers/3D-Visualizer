@@ -18,6 +18,9 @@ public:
     OpenGLRenderer(const OpenGLRenderer&) = delete;
     OpenGLRenderer& operator=(const OpenGLRenderer&) = delete;
 
+    OpenGLRenderer(OpenGLRenderer&&) = delete;
+    OpenGLRenderer& operator=(OpenGLRenderer&&) = delete;
+
     void render(const Frame& frame) override;
 
 private:

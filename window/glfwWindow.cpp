@@ -17,6 +17,12 @@ struct GlfwWindow::Runtime {
         }
     }
 
+    Runtime(const Runtime&) = delete;
+    Runtime& operator=(const Runtime&) = delete;
+
+    Runtime(Runtime&&) = delete;
+    Runtime& operator=(Runtime&&) = delete;
+
     ~Runtime() { glfwTerminate(); }
 };
 

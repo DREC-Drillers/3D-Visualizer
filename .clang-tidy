@@ -36,10 +36,11 @@ Checks: >-
 # Optional residency and exception propagation need a separate contract review;
 # do not enable every bugprone check indiscriminately.
 WarningsAsErrors: '*'
-HeaderFilterRegex: '(^|[/\\])((core|scene|cameraController|window|renderer|tests)[/\\].*|frame|inputState|renderView)\.(h|hh|hpp|hxx)$'
+HeaderFilterRegex: '(^|[/\\])((core|scene|cameraController|window|renderer)[/\\].*|frame|inputState|renderView)\.(h|hh|hpp|hxx)$'
 SystemHeaders: false
 FormatStyle: file
 CheckOptions:
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
   readability-identifier-naming.NamespaceCase: lower_case
   readability-identifier-naming.InlineNamespaceCase: lower_case
   readability-identifier-naming.ClassCase: CamelCase
