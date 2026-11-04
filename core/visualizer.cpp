@@ -118,6 +118,9 @@ void Viewer::run() {
         throw std::logic_error("Running requires a window and a renderer");
     }
 
+    constexpr float MAX_DELTA_TIME_SECONDS = 0.1f;
+    constexpr auto MINIMIZED_WINDOW_POLL_INTERVAL = std::chrono::milliseconds{16};
+
     auto& window = *backend_.window;
     auto previousTime = std::chrono::steady_clock::now();
 
@@ -133,12 +136,12 @@ void Viewer::run() {
             std::chrono::duration<float>(currentTime - previousTime).count();
         previousTime = currentTime;
 
-        update(std::min(deltaTime, 0.1f));
+        update(std::min(deltaTime, MAX_DELTA_TIME_SECONDS));
         drawFrame();
 
         const auto size = window.framebufferSize();
         if (size.width <= 0 || size.height <= 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            std::this_thread::sleep_for(MINIMIZED_WINDOW_POLL_INTERVAL);
         }
     }
 }

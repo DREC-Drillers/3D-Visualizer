@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <stdexcept>
+#include <string>
 
 #include "../scene/lightning/light.hpp"
 #include "../scene/lightning/lightVisitor.hpp"
@@ -22,8 +23,9 @@ public:
 
     void visit(const DirectionalLight& light) override {
         if (data_.directionalCount == data_.directional.size()) {
-            throw std::length_error(
-                "Renderer supports at most 16 enabled directional lights");
+            throw std::length_error("Renderer supports at most " +
+                                    std::to_string(data_.directional.size()) +
+                                    " enabled directional lights");
         }
 
         auto& directional = data_.directional[data_.directionalCount++];

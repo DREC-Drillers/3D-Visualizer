@@ -183,6 +183,9 @@ private:
 
 void runDemo(visualizer::Viewer& viewer, visualizer::Window& window,
              LightingDemoControls& controls) {
+    constexpr float MAX_DELTA_TIME_SECONDS = 0.1f;
+    constexpr auto MINIMIZED_WINDOW_POLL_INTERVAL = std::chrono::milliseconds{16};
+
     auto previousTime = std::chrono::steady_clock::now();
 
     while (!window.shouldClose()) {
@@ -198,13 +201,13 @@ void runDemo(visualizer::Viewer& viewer, visualizer::Window& window,
             std::chrono::duration<float>(now - previousTime).count();
         previousTime = now;
 
-        viewer.update(std::min(deltaTime, 0.1f));
+        viewer.update(std::min(deltaTime, MAX_DELTA_TIME_SECONDS));
         viewer.drawFrame();
 
         const auto size = window.framebufferSize();
 
         if (size.width <= 0 || size.height <= 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            std::this_thread::sleep_for(MINIMIZED_WINDOW_POLL_INTERVAL);
         }
     }
 }

@@ -1,6 +1,7 @@
 #include "shaderProgram.hpp"
 
 #include <array>
+#include <cstddef>
 #include <glad/gl.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <stdexcept>
@@ -8,6 +9,8 @@
 
 namespace visualizer {
 namespace {
+
+constexpr std::size_t INFO_LOG_CAPACITY = 2048;
 
 GLuint compileShader(GLenum type, const char* source) {
     const GLuint shader = glCreateShader(type);
@@ -17,7 +20,7 @@ GLuint compileShader(GLenum type, const char* source) {
     GLint success = GL_FALSE;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (success != GL_TRUE) {
-        std::array<char, 2048> log{};
+        std::array<char, INFO_LOG_CAPACITY> log{};
         glGetShaderInfoLog(
             shader, static_cast<GLsizei>(log.size()), nullptr, log.data());
         glDeleteShader(shader);
@@ -52,7 +55,7 @@ GLuint createProgram(const char* vertexSource, const char* fragmentSource) {
     GLint success = GL_FALSE;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (success != GL_TRUE) {
-        std::array<char, 2048> log{};
+        std::array<char, INFO_LOG_CAPACITY> log{};
         glGetProgramInfoLog(
             program, static_cast<GLsizei>(log.size()), nullptr, log.data());
         glDeleteProgram(program);
