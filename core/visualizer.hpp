@@ -34,7 +34,6 @@ public:
                  std::unique_ptr<CameraController> controller = nullptr);
 
     void addBackend(ViewerBackend backend) {
-        ViewerBackend_.renderer.reset();
         ViewerBackend_ = std::move(backend);
         draggedView_.reset();
     }

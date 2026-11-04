@@ -1,6 +1,8 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -38,6 +40,44 @@ public:
         }
     }
 };
+
+class LifetimeWindow final : public Window {
+public:
+    explicit LifetimeWindow(bool& alive) : alive_(alive) { alive_ = true; }
+    ~LifetimeWindow() override { alive_ = false; }
+
+    void pollEvents() override {}
+    InputState takeInput() override { return {}; }
+    bool shouldClose() const override { return true; }
+    FramebufferSize framebufferSize() const override { return {800, 600}; }
+
+private:
+    bool& alive_;
+};
+
+class LifetimeRenderer final : public Renderer {
+public:
+    LifetimeRenderer(const bool& windowAlive, int& destructions)
+        : windowAlive_(windowAlive), destructions_(destructions) {}
+
+    ~LifetimeRenderer() override {
+        EXPECT_TRUE(windowAlive_) << "Renderer must be destroyed before its window";
+        ++destructions_;
+    }
+
+    void render(const Frame&) override { EXPECT_TRUE(windowAlive_); }
+
+private:
+    const bool& windowAlive_;
+    int& destructions_;
+};
+
+ViewerBackend lifetimeBackend(bool& windowAlive, int& destructions) {
+    auto window = std::make_unique<LifetimeWindow>(windowAlive);
+    auto renderer = std::make_unique<LifetimeRenderer>(windowAlive, destructions);
+
+    return {std::move(window), std::move(renderer)};
+}
 
 } // namespace
 
@@ -116,4 +156,101 @@ TEST(OrbitCameraController, RejectsCameraAtOrbitTargetAndInvalidSettings) {
     EXPECT_THROW(
         (OrbitCameraController({0, std::numeric_limits<float>::infinity(), 0})),
         std::invalid_argument);
+}
+
+static_assert(!std::is_copy_constructible_v<ViewerBackend>);
+static_assert(!std::is_copy_assignable_v<ViewerBackend>);
+static_assert(std::is_nothrow_move_constructible_v<ViewerBackend>);
+static_assert(std::is_nothrow_move_assignable_v<ViewerBackend>);
+
+TEST(ViewerBackend, MoveAssignmentReleasesRendererBeforeWindow) {
+    bool oldAlive = false;
+    bool newAlive = false;
+    int destructions = 0;
+
+    {
+        auto target = lifetimeBackend(oldAlive, destructions);
+        auto source = lifetimeBackend(newAlive, destructions);
+        auto* newWindow = source.window.get();
+        auto* newRenderer = source.renderer.get();
+
+        auto& assigned = (target = std::move(source));
+
+        EXPECT_EQ(&assigned, &target);
+        EXPECT_FALSE(oldAlive);
+        EXPECT_TRUE(newAlive);
+        EXPECT_EQ(destructions, 1);
+        EXPECT_EQ(target.window.get(), newWindow);
+        EXPECT_EQ(target.renderer.get(), newRenderer);
+        // Verify the documented empty state of the moved unique_ptr members.
+        // NOLINTBEGIN(bugprone-use-after-move)
+        EXPECT_EQ(source.window, nullptr);
+        EXPECT_EQ(source.renderer, nullptr);
+        // NOLINTEND(bugprone-use-after-move)
+    }
+
+    EXPECT_FALSE(newAlive);
+    EXPECT_EQ(destructions, 2);
+}
+
+TEST(ViewerBackend, MoveConstructionPreservesResources) {
+    bool alive = false;
+    int destructions = 0;
+
+    {
+        auto source = lifetimeBackend(alive, destructions);
+        ViewerBackend target(std::move(source));
+
+        EXPECT_TRUE(alive);
+        EXPECT_EQ(destructions, 0);
+        // Verify the documented empty state of the moved unique_ptr members.
+        // NOLINTBEGIN(bugprone-use-after-move)
+        EXPECT_EQ(source.window, nullptr);
+        EXPECT_EQ(source.renderer, nullptr);
+        // NOLINTEND(bugprone-use-after-move)
+        target.renderer->render(Frame{});
+    }
+
+    EXPECT_FALSE(alive);
+    EXPECT_EQ(destructions, 1);
+}
+
+TEST(Viewer, MoveAssignmentReleasesRendererBeforeWindow) {
+    bool oldAlive = false;
+    bool newAlive = false;
+    int destructions = 0;
+
+    {
+        Viewer target(lifetimeBackend(oldAlive, destructions));
+        Viewer source(lifetimeBackend(newAlive, destructions));
+
+        target = std::move(source);
+
+        EXPECT_FALSE(oldAlive);
+        EXPECT_TRUE(newAlive);
+        EXPECT_EQ(destructions, 1);
+        EXPECT_NO_THROW(target.drawFrame());
+    }
+
+    EXPECT_FALSE(newAlive);
+    EXPECT_EQ(destructions, 2);
+}
+
+TEST(Viewer, BackendReplacementReleasesRendererBeforeWindow) {
+    bool oldAlive = false;
+    bool newAlive = false;
+    int destructions = 0;
+
+    {
+        Viewer viewer(lifetimeBackend(oldAlive, destructions));
+        viewer.addBackend(lifetimeBackend(newAlive, destructions));
+
+        EXPECT_FALSE(oldAlive);
+        EXPECT_TRUE(newAlive);
+        EXPECT_EQ(destructions, 1);
+        EXPECT_NO_THROW(viewer.drawFrame());
+    }
+
+    EXPECT_FALSE(newAlive);
+    EXPECT_EQ(destructions, 2);
 }
