@@ -248,6 +248,64 @@ TEST_F(OpenGLRendering, MissingNormalsUseGeometricNormalOnBothSides) {
     std::swap(vertices[1], vertices[2]);
     draw();
     expectPixel({128, 128, 128, 255});
+
+    scene_.object(object_).transform.scale = {-1, 1, 1};
+    draw();
+    expectPixel({128, 128, 128, 255});
+}
+
+class MirroredTransform
+    : public OpenGLRendering,
+      public ::testing::WithParamInterface<std::array<float, 3>> {};
+
+TEST_P(MirroredTransform, PreservesLightingAndRestoresPositiveScaleWinding) {
+    directional({0, 0, 1});
+    draw();
+    expectPixel({255, 255, 255, 255});
+
+    scene_.object(object_).transform.scale = GetParam();
+    draw();
+    expectPixel({255, 255, 255, 255});
+
+    scene_.object(object_).transform.scale = {1, 1, 1};
+    draw();
+    expectPixel({255, 255, 255, 255});
+}
+
+INSTANTIATE_TEST_SUITE_P(ReflectedAxes, MirroredTransform,
+                         ::testing::Values(std::array<float, 3>{-1, 1, 1},
+                                           std::array<float, 3>{1, -1, 1},
+                                           std::array<float, 3>{1, 1, -1},
+                                           std::array<float, 3>{-1, -1, 1},
+                                           std::array<float, 3>{-1, 1, -1},
+                                           std::array<float, 3>{1, -1, -1},
+                                           std::array<float, 3>{-1, -1, -1}));
+
+TEST_F(OpenGLRendering, MirroredBackFaceKeepsItsLightingOrientation) {
+    auto& object = scene_.object(object_);
+    std::swap(object.geometry.vertices[1], object.geometry.vertices[2]);
+    object.transform.scale = {-1, 1, 1};
+    directional({0, 0, -1}, {1, 1, 1}, 0.5f);
+    draw();
+    expectPixel({128, 128, 128, 255});
+}
+
+TEST_F(OpenGLRendering, MixedMirroredAndPositiveObjectsHaveIndependentWinding) {
+    auto& left = scene_.object(object_);
+    left.transform.scale = {-0.4f, 0.4f, 1};
+    left.transform.position = {-0.5f, 0, 0};
+    left.material.color = {1, 0, 0, 1};
+
+    auto right = left;
+    right.transform.scale = {0.4f, 0.4f, 1};
+    right.transform.position = {0.5f, 0, 0};
+    right.material.color = {0, 1, 0, 1};
+    scene_.addObject(std::move(right));
+
+    directional({0, 0, 1});
+    draw();
+    expectPixel({255, 0, 0, 255}, SIDE / 4, SIDE / 2);
+    expectPixel({0, 255, 0, 255}, 3 * SIDE / 4, SIDE / 2);
 }
 
 TEST_F(OpenGLRendering, RotationChangesDiffuseBrightness) {
@@ -264,6 +322,10 @@ TEST_F(OpenGLRendering, NonuniformScaleUsesInverseTransposeForNormals) {
                                   {{0, 0.7f, 0}, {1, 0, 1}}};
     triangle.transform.scale = {2, 1, 0.5f};
     directional({0, 0, 1}, {1, 1, 1}, 0.75f);
+    draw();
+    expectPixel({186, 186, 186, 255});
+
+    triangle.transform.scale = {-2, 1, 0.5f};
     draw();
     expectPixel({186, 186, 186, 255});
 }

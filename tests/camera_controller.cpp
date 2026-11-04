@@ -91,7 +91,8 @@ TEST(OrbitCameraController, HandlesInputSequenceAndFocus) {
 
 TEST(Viewer, RoutesDragAcrossViewportBoundaries) {
     Scene scene;
-    const auto camera = scene.addCamera(Camera{});
+    const auto leftCamera = scene.addCamera(Camera{});
+    const auto rightCamera = scene.addCamera(Camera{});
     auto window = std::make_unique<TestWindow>();
     auto* state = window.get();
     auto left = std::make_unique<RecordingController>();
@@ -99,8 +100,8 @@ TEST(Viewer, RoutesDragAcrossViewportBoundaries) {
     auto* leftState = left.get();
     auto* rightState = right.get();
     Viewer viewer({std::move(window), nullptr});
-    viewer.addView(scene, camera, {0, 0, 0.5f, 1}, std::move(left));
-    viewer.addView(scene, camera, {0.5f, 0, 0.5f, 1}, std::move(right));
+    viewer.addView(scene, leftCamera, {0, 0, 0.5f, 1}, std::move(left));
+    viewer.addView(scene, rightCamera, {0.5f, 0, 0.5f, 1}, std::move(right));
 
     state->input.cursorPosition = {0.75, 0.5};
     state->input.pressPosition = {0.25, 0.5};

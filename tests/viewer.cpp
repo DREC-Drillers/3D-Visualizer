@@ -79,10 +79,20 @@ ViewerBackend lifetimeBackend(bool& windowAlive, int& destructions) {
     return {std::move(window), std::move(renderer)};
 }
 
+class AttachCountingController final : public CameraController {
+public:
+    explicit AttachCountingController(int& calls) : calls_(calls) {}
+    void attach(const Camera&) override { ++calls_; }
+    void update(Camera&, const InputState&, float, float) override {}
+
+private:
+    int& calls_;
+};
+
 } // namespace
 
 TEST(Viewer, ReportsMissingBackendWithoutEnteringRunLoop) {
-    Viewer viewer;
+    Viewer viewer(ViewerBackend{});
 
     EXPECT_THROW(viewer.update(0.01f), std::logic_error);
     EXPECT_THROW(viewer.drawFrame(), std::logic_error);
@@ -94,7 +104,7 @@ class InvalidViewportTest : public ::testing::TestWithParam<NormalizedViewport> 
 TEST_P(InvalidViewportTest, RejectsInvalidViewport) {
     Scene scene;
     const auto camera = scene.addCamera(Camera{});
-    Viewer viewer;
+    Viewer viewer(ViewerBackend{});
 
     EXPECT_THROW(viewer.addView(scene, camera, GetParam()), std::invalid_argument);
 }
@@ -110,7 +120,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 TEST(Viewer, RejectsUnknownCameraAndOverlappingViews) {
     Scene scene;
-    Viewer viewer;
+    Viewer viewer(ViewerBackend{});
     EXPECT_THROW(viewer.addView(scene, CameraId{42}), std::out_of_range);
 
     const auto camera = scene.addCamera(Camera{});
@@ -215,42 +225,92 @@ TEST(ViewerBackend, MoveConstructionPreservesResources) {
     EXPECT_EQ(destructions, 1);
 }
 
-TEST(Viewer, MoveAssignmentReleasesRendererBeforeWindow) {
-    bool oldAlive = false;
-    bool newAlive = false;
+static_assert(!std::is_default_constructible_v<Viewer>);
+static_assert(!std::is_copy_constructible_v<Viewer>);
+static_assert(!std::is_copy_assignable_v<Viewer>);
+static_assert(std::is_nothrow_move_constructible_v<Viewer>);
+static_assert(!std::is_move_assignable_v<Viewer>);
+
+TEST(Viewer, MoveConstructionPreservesBackendLifetime) {
+    bool alive = false;
     int destructions = 0;
 
     {
-        Viewer target(lifetimeBackend(oldAlive, destructions));
-        Viewer source(lifetimeBackend(newAlive, destructions));
+        Viewer source(lifetimeBackend(alive, destructions));
+        Viewer target(std::move(source));
 
-        target = std::move(source);
-
-        EXPECT_FALSE(oldAlive);
-        EXPECT_TRUE(newAlive);
-        EXPECT_EQ(destructions, 1);
+        EXPECT_TRUE(alive);
+        EXPECT_EQ(destructions, 0);
         EXPECT_NO_THROW(target.drawFrame());
     }
 
-    EXPECT_FALSE(newAlive);
-    EXPECT_EQ(destructions, 2);
+    EXPECT_FALSE(alive);
+    EXPECT_EQ(destructions, 1);
 }
 
-TEST(Viewer, BackendReplacementReleasesRendererBeforeWindow) {
-    bool oldAlive = false;
-    bool newAlive = false;
-    int destructions = 0;
+TEST(Viewer, RejectsSecondControllerBeforeAttachingIt) {
+    Scene scene;
+    const auto camera = scene.addCamera(Camera{});
+    Viewer viewer(ViewerBackend{});
+    int attachments = 0;
 
-    {
-        Viewer viewer(lifetimeBackend(oldAlive, destructions));
-        viewer.addBackend(lifetimeBackend(newAlive, destructions));
+    viewer.addView(scene,
+                   camera,
+                   {0, 0, 0.5f, 1},
+                   std::make_unique<AttachCountingController>(attachments));
+    EXPECT_EQ(attachments, 1);
 
-        EXPECT_FALSE(oldAlive);
-        EXPECT_TRUE(newAlive);
-        EXPECT_EQ(destructions, 1);
-        EXPECT_NO_THROW(viewer.drawFrame());
-    }
+    EXPECT_THROW(
+        viewer.addView(scene,
+                       camera,
+                       {0.5f, 0, 0.5f, 1},
+                       std::make_unique<AttachCountingController>(attachments)),
+        std::invalid_argument);
+    EXPECT_EQ(attachments, 1);
 
-    EXPECT_FALSE(newAlive);
-    EXPECT_EQ(destructions, 2);
+    // The rejected addition must leave this viewport available.
+    EXPECT_NO_THROW(viewer.addView(scene, camera, {0.5f, 0, 0.5f, 1}));
+}
+
+TEST(Viewer, AllowsOneControllerAlongsideUncontrolledViewsOfSameCamera) {
+    Scene scene;
+    const auto camera = scene.addCamera(Camera{});
+    Viewer viewer(ViewerBackend{});
+    int attachments = 0;
+
+    viewer.addView(scene, camera, {0, 0, 0.25f, 1});
+    EXPECT_NO_THROW(
+        viewer.addView(scene,
+                       camera,
+                       {0.25f, 0, 0.5f, 1},
+                       std::make_unique<AttachCountingController>(attachments)));
+    EXPECT_NO_THROW(viewer.addView(scene, camera, {0.75f, 0, 0.25f, 1}));
+    EXPECT_EQ(attachments, 1);
+}
+
+TEST(Viewer, AllowsControllersForDistinctCamerasAndScenes) {
+    Scene first;
+    Scene second;
+    const auto camera = first.addCamera(Camera{});
+    const auto otherCamera = first.addCamera(Camera{});
+    const auto sameIdInOtherScene = second.addCamera(Camera{});
+    ASSERT_EQ(camera, sameIdInOtherScene);
+    Viewer viewer(ViewerBackend{});
+    int attachments = 0;
+
+    viewer.addView(first,
+                   camera,
+                   {0, 0, 0.25f, 1},
+                   std::make_unique<AttachCountingController>(attachments));
+    EXPECT_NO_THROW(
+        viewer.addView(first,
+                       otherCamera,
+                       {0.25f, 0, 0.25f, 1},
+                       std::make_unique<AttachCountingController>(attachments)));
+    EXPECT_NO_THROW(
+        viewer.addView(second,
+                       sameIdInOtherScene,
+                       {0.5f, 0, 0.5f, 1},
+                       std::make_unique<AttachCountingController>(attachments)));
+    EXPECT_EQ(attachments, 3);
 }

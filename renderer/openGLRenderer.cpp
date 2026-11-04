@@ -123,6 +123,7 @@ void OpenGLRenderer::beginFrame() {
     glDisable(GL_SCISSOR_TEST);
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE);
@@ -196,9 +197,13 @@ void OpenGLRenderer::renderView(const RenderView& view,
         const auto model = modelMatrix(object.transform);
         const auto modelViewProjection = viewProjection * model;
         const glm::mat3 linear(model);
+        const float determinant = glm::determinant(linear);
+
+        // Reflections reverse winding; keep front-facing consistent with normals.
+        glFrontFace(determinant < 0.0f ? GL_CW : GL_CCW);
 
         // Singular transforms use the fragment shader's geometric normal fallback.
-        const auto normalMatrix = glm::determinant(linear) != 0.0f
+        const auto normalMatrix = determinant != 0.0f
                                       ? glm::transpose(glm::inverse(linear))
                                       : glm::mat3(0.0f);
 

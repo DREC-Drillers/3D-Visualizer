@@ -27,16 +27,19 @@ private:
     std::optional<std::size_t> viewAt(std::array<double, 2> position) const;
 
 public:
-    Viewer() = default;
     explicit Viewer(ViewerBackend backend) : backend_(std::move(backend)) {}
 
+    Viewer(const Viewer&) = delete;
+    Viewer& operator=(const Viewer&) = delete;
+
+    Viewer(Viewer&&) noexcept = default;
+    Viewer& operator=(Viewer&&) = delete;
+
+    ~Viewer() = default;
+
+    // A scene camera may have only one controller within this viewer.
     void addView(Scene& scene, CameraId camera, NormalizedViewport viewport = {},
                  std::unique_ptr<CameraController> controller = nullptr);
-
-    void addBackend(ViewerBackend backend) {
-        backend_ = std::move(backend);
-        draggedView_.reset();
-    }
 
     void run();
     void update(float deltaTime);

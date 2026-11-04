@@ -22,6 +22,12 @@ void Viewer::addView(Scene& scene, CameraId camera, NormalizedViewport viewport,
     }
 
     for (const auto& view : views_) {
+        if (controller && view.controller && &view.scene == &scene &&
+            view.camera == camera) {
+            throw std::invalid_argument(
+                "A camera can have only one controller per viewer");
+        }
+
         const auto& other = view.viewport;
 
         if (viewport.x < other.x + other.width &&
