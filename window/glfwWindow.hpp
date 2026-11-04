@@ -3,7 +3,7 @@
 #include <array>
 #include <memory>
 
-#include "../backendSettings.hpp"
+#include "../core/backendSettings.hpp"
 #include "window.hpp"
 
 struct GLFWwindow;

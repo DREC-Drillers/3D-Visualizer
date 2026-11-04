@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "renderer/renderer.hpp"
-#include "window/window.hpp"
+#include "../renderer/renderer.hpp"
+#include "../window/window.hpp"
 
 namespace visualizer {
 

@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "cameraController/orbitCameraController.hpp"
-#include "visualizer.hpp"
+#include "core/visualizer.hpp"
 
 using namespace visualizer;
 
