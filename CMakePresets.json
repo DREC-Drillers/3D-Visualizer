@@ -13,13 +13,13 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": true,
-        "VISUALIZER_BUILD_EXAMPLES": false,
+        "VISUALIZER_BUILD_EXAMPLES": true,
         "VISUALIZER_BUILD_OPENGL_TESTS": false
       }
     },
     {
       "name": "debug",
-      "displayName": "Visualizer library with tests",
+      "displayName": "Debug library, example and unit tests",
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
@@ -29,7 +29,7 @@
     },
     {
       "name": "release",
-      "displayName": "Visualizer library without tests or examples",
+      "displayName": "Release library and example",
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
@@ -38,11 +38,19 @@
       }
     },
     {
-      "name": "demo",
-      "displayName": "Interactive lighting demo with tests",
+      "name": "profile",
+      "displayName": "Optimized library and example with debug symbols",
+      "inherits": "release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "quality",
+      "displayName": "Compilation database for clang-tidy",
       "inherits": "debug",
       "cacheVariables": {
-        "VISUALIZER_BUILD_EXAMPLES": true
+        "VISUALIZER_BUILD_OPENGL_TESTS": true
       }
     },
     {
@@ -50,29 +58,39 @@
       "displayName": "OpenGL rendering integration tests",
       "inherits": "debug",
       "cacheVariables": {
-        "VISUALIZER_BUILD_OPENGL_TESTS": true
+        "VISUALIZER_BUILD_OPENGL_TESTS": true,
+        "VISUALIZER_BUILD_EXAMPLES": false
       }
     }
   ],
   "buildPresets": [
     {
       "name": "debug",
-      "configurePreset": "debug"
+      "configurePreset": "debug",
+      "jobs": 2
     },
     {
       "name": "release",
-      "configurePreset": "release"
+      "configurePreset": "release",
+      "jobs": 2
     },
     {
-      "name": "demo",
-      "configurePreset": "demo"
+      "name": "profile",
+      "configurePreset": "profile",
+      "jobs": 2
+    },
+    {
+      "name": "quality",
+      "configurePreset": "quality",
+      "jobs": 2
     },
     {
       "name": "opengl",
       "configurePreset": "opengl",
       "targets": [
         "visualizer_opengl_tests"
-      ]
+      ],
+      "jobs": 2
     }
   ],
   "testPresets": [
@@ -87,13 +105,18 @@
       }
     },
     {
-      "name": "demo",
-      "configurePreset": "demo",
+      "name": "quality",
+      "configurePreset": "quality",
       "output": {
         "outputOnFailure": true
       },
       "execution": {
         "noTestsAction": "error"
+      },
+      "filter": {
+        "exclude": {
+          "label": "opengl"
+        }
       }
     },
     {

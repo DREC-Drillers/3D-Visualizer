@@ -14,25 +14,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preset: [debug, release, demo]
+        preset: [debug, release, profile]
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
       - name: Configure
         run: nix develop --command cmake --preset ${{ matrix.preset }}
       - name: Build
-        run: nix develop --command cmake --build --preset ${{ matrix.preset }} --parallel 2
+        run: nix develop --command cmake --build --preset ${{ matrix.preset }}
       - name: Test
-        if: matrix.preset != 'release'
+        if: matrix.preset == 'debug'
         run: nix develop --command ctest --preset ${{ matrix.preset }}
       - name: Build Nix package
         if: matrix.preset == 'release'
         run: nix build .#default .#checks.x86_64-linux.unitTests --no-link
       - name: Verify installed package
-        if: matrix.preset == 'demo'
+        if: matrix.preset == 'profile'
         run: |
           nix develop --command bash -euo pipefail -c '
-            cmake --install build/demo --prefix "$PWD/build/install"
+            cmake --install build/profile --prefix "$PWD/build/install"
             cmake -S tests/consumer -B build/consumer -G Ninja -DCMAKE_PREFIX_PATH="$PWD/build/install"
             cmake --build build/consumer --parallel 2
             ./build/consumer/consumer
@@ -61,8 +61,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
       - name: Configure
-        run: nix develop --command cmake --preset demo -DVISUALIZER_BUILD_OPENGL_TESTS=ON
+        run: nix develop --command cmake --preset quality
       - name: Build
-        run: nix develop --command cmake --build --preset demo --parallel 2
+        run: nix develop --command cmake --build --preset quality
       - name: Analyze
-        run: nix develop --command python3 scripts/code_quality.py tidy --build-dir build/demo
+        run: nix develop --command python3 scripts/code_quality.py tidy --build-dir build/quality
