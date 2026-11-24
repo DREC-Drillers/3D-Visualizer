@@ -57,25 +57,7 @@ OpenGLRenderer::OpenGLRenderer(GlfwWindow& window) : window_(window) {
         glGenBuffers(1, &vertexBuffer_);
 
         glBindVertexArray(vertexArray_);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
-
-        glVertexAttribPointer(
-            0,
-            3,
-            GL_FLOAT,
-            GL_FALSE,
-            sizeof(Vertex),
-            reinterpret_cast<const void*>(offsetof(Vertex, position)));
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(
-            1,
-            3,
-            GL_FLOAT,
-            GL_FALSE,
-            sizeof(Vertex),
-            reinterpret_cast<const void*>(offsetof(Vertex, normal)));
-        glEnableVertexAttribArray(1);
+        bindVertexBuffer(vertexBuffer_);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -96,7 +78,31 @@ OpenGLRenderer::~OpenGLRenderer() {
     releaseResources();
 }
 
+void OpenGLRenderer::bindVertexBuffer(unsigned int buffer) {
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+    glVertexAttribPointer(0,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(Vertex),
+                          reinterpret_cast<const void*>(offsetof(Vertex, position)));
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(Vertex),
+                          reinterpret_cast<const void*>(offsetof(Vertex, normal)));
+    glEnableVertexAttribArray(1);
+}
+
 void OpenGLRenderer::releaseResources() noexcept {
+    for (const auto& entry : staticVertexBuffers_) {
+        glDeleteBuffers(1, &entry.second);
+    }
+    staticVertexBuffers_.clear();
     glDeleteBuffers(1, &vertexBuffer_);
     glDeleteVertexArrays(1, &vertexArray_);
     shaderProgram_.reset();
@@ -133,7 +139,14 @@ void OpenGLRenderer::beginFrame() {
 
     shaderProgram_->bind();
     glBindVertexArray(vertexArray_);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
+    for (auto it = staticVertexBuffers_.begin(); it != staticVertexBuffers_.end();) {
+        if (it->first.expired()) {
+            glDeleteBuffers(1, &it->second);
+            it = staticVertexBuffers_.erase(it);
+        } else {
+            ++it;
+        }
+    }
     glEnable(GL_SCISSOR_TEST);
 }
 
@@ -190,7 +203,7 @@ void OpenGLRenderer::renderView(const RenderView& view,
     }
 
     for (const auto& [id, object] : view.scene.objects()) {
-        if (object.geometry.vertices.empty()) {
+        if (object.geometry.renderVertices().empty()) {
             continue;
         }
 
@@ -222,22 +235,39 @@ void OpenGLRenderer::renderView(const RenderView& view,
 }
 
 void OpenGLRenderer::drawGeometry(const Geometry& geometry) {
-    if (geometry.vertices.size() >
+    const auto& vertices = geometry.renderVertices();
+    if (vertices.size() >
             static_cast<std::size_t>(std::numeric_limits<GLsizei>::max()) ||
-        geometry.vertices.size() >
+        vertices.size() >
             static_cast<std::size_t>(std::numeric_limits<GLsizeiptr>::max()) /
                 sizeof(Vertex)) {
         throw std::length_error("Too many vertices in geometry");
     }
 
-    glBufferData(GL_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>(geometry.vertices.size() * sizeof(Vertex)),
-                 geometry.vertices.data(),
-                 GL_STREAM_DRAW);
+    const auto bytes = static_cast<GLsizeiptr>(vertices.size() * sizeof(Vertex));
+    if (geometry.staticVertices) {
+        const auto [it, inserted] =
+            staticVertexBuffers_.try_emplace(geometry.staticVertices, 0);
+        if (inserted) {
+            glGenBuffers(1, &it->second);
+        }
+        bindVertexBuffer(it->second);
+        if (inserted) {
+            glBufferData(GL_ARRAY_BUFFER, bytes, vertices.data(), GL_STATIC_DRAW);
+            if (glGetError() != GL_NO_ERROR) {
+                glDeleteBuffers(1, &it->second);
+                staticVertexBuffers_.erase(it);
+                throw std::runtime_error("Failed to upload static geometry");
+            }
+        }
+    } else {
+        bindVertexBuffer(vertexBuffer_);
+        glBufferData(GL_ARRAY_BUFFER, bytes, vertices.data(), GL_STREAM_DRAW);
+    }
 
     glDrawArrays(primitiveTopology(geometry.topology),
                  0,
-                 static_cast<GLsizei>(geometry.vertices.size()));
+                 static_cast<GLsizei>(vertices.size()));
 }
 
 void OpenGLRenderer::endFrame() {

@@ -156,6 +156,29 @@ protected:
     bool contextReady_ = false;
 };
 
+TEST_F(OpenGLRendering, StaticGeometryRendersAcrossFramesAndCanBeReplaced) {
+    auto& object = scene_.object(object_);
+    object.material.lit = false;
+    auto& geometry = object.geometry;
+    auto replacement = geometry.vertices;
+    geometry.freezeVertices();
+
+    draw();
+    expectPixel({255, 255, 255, 255});
+
+    object.material.color = {1, 0, 0, 1};
+    draw();
+    expectPixel({255, 0, 0, 255});
+
+    for (auto& vertex : replacement) {
+        vertex.position[0] += 3.0f;
+    }
+    geometry.vertices = std::move(replacement);
+    geometry.freezeVertices();
+    draw();
+    expectPixel({20, 26, 36, 255});
+}
+
 TEST_F(OpenGLRendering, LitSurfaceIsBlackWithoutSources) {
     draw();
     expectPixel({0, 0, 0, 255});

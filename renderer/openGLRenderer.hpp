@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 
 #include "openGLLightingData.hpp"
@@ -30,6 +31,7 @@ private:
     void renderView(const RenderView& view, FramebufferSize framebufferSize);
     FramebufferSize prepareViewport(const NormalizedViewport& viewport,
                                     FramebufferSize framebufferSize);
+    void bindVertexBuffer(unsigned int buffer);
     void drawGeometry(const Geometry& geometry);
     void endFrame();
 
@@ -39,6 +41,9 @@ private:
     unsigned int vertexArray_ = 0;
     unsigned int vertexBuffer_ = 0;
 
+    std::map<std::weak_ptr<const std::vector<Vertex>>, unsigned int,
+             std::owner_less<>>
+        staticVertexBuffers_;
     int modelViewProjectionUniformLocation_ = -1;
     int materialColorUniformLocation_ = -1;
     int modelUniformLocation_ = -1;

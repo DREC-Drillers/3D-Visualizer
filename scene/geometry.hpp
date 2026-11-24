@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <memory>
+#include <utility>
 #include <vector>
 
 namespace visualizer {
@@ -15,6 +17,18 @@ struct Vertex {
 struct Geometry {
     Topology topology = Topology::TRIANGLES;
     std::vector<Vertex> vertices;
+    // When set, this immutable snapshot supplies the vertices for rendering.
+    std::shared_ptr<const std::vector<Vertex>> staticVertices;
+
+    const std::vector<Vertex>& renderVertices() const noexcept {
+        return staticVertices ? *staticVertices : vertices;
+    }
+
+    void freezeVertices() {
+        staticVertices =
+            std::make_shared<const std::vector<Vertex>>(std::move(vertices));
+        vertices.clear();
+    }
 };
 
 } // namespace visualizer
